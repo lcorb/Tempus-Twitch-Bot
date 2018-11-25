@@ -9,6 +9,8 @@ const tempusBase = `https://tempus.xyz/api`;
       activity = "/activity",
       searchEnd = "/search/playersAndMaps/";
 
+var client;
+
 function fauth(){
   return new Promise(function(resolve, reject){    
     fs.readFile("auth.txt", "utf8", function(error, data) {
@@ -31,9 +33,8 @@ async function main(){
       `scotchtoberfest`
     ]
   };
-  console.log(`Main: ${opts}`);
-  // Register our event handlers (defined below):  
-  let client = new tmi.client(opts);
+
+  client = new tmi.client(opts);
   
   client.on('message', onMessageHandler);
   client.on('connected', onConnectedHandler);
@@ -114,7 +115,8 @@ let knownCommands = {
   wr,
   swr,
   dwr,
-  authors
+  authors,
+  rr
 };
 
 //API GIT
@@ -212,6 +214,11 @@ function dtime(target, context, params){
   
 }
 
+async function rr(target, context, params){
+  activity = await parseActivity(f);
+  sendMessage(target, context, `@${context.username} `);
+}
+
 async function vid(target, context, params){
   if (!params.length){
     sendMessage(target, context, `@${context.username} Usage: !vid map`);
@@ -306,6 +313,50 @@ function parseMap(mapObj){
     }    
   })
 };
+
+//type should be map_tops, course_wrs, map_wrs, bonus_wrs
+function parseActivity(type, all = false){
+  return new Promise(function (resolve, reject){
+    request(tempusGET(activity))
+    .then(async function(response){
+      //console.log(util.inspect(response, false, null, true));
+      resolve(parseTT(response));      
+    })
+    .catch(function(response) {
+      if (response.statusCode == 404){
+        console.log(`${e}`);
+        reject(e);
+      }
+    })
+  })
+}
+
+function parseTT(activityObj){
+  var response = [];
+  //up to 20 recent map_tops
+  for (i = 0; i < activityObj.length - 14; i++){
+    player = activityObj.record_info[i].player_info[`name`];
+    map = activityObj.record_info[i].map_info[`name`];
+    rank = activityObj.record_info[i].rank;
+    tf2Class = "";
+    activityObj.record_info[i].demo_id[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
+
+    response.push(`${map} - ${player} (${tf2Class} #${rank}`);
+  }
+  return (response.join()).replace(/,/g, " | ");
+}
+
+function parseCourseWR(activityObj){
+
+}
+
+function parseMapWR(activityObj){
+  
+}
+
+function parseBonusWR(activityObj){
+  
+}
 
 function parseAuthors(mapObj, full = false){
   var mapAuthors = [];
