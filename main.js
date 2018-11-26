@@ -1,13 +1,11 @@
+const api = require('./api.js'),
+      tempus = require('./tempus.js');
+
 const tmi = require('tmi.js'),
       request = require('request-promise'),
-      util = require('util');      
+      util = require('util'),
       fs = require("fs");
-      auth = "";
-
-const tempusBase = `https://tempus.xyz/api`;
-      miEnd = "/maps/name/",
-      activity = "/activity",
-      searchEnd = "/search/playersAndMaps/";
+var auth = "";
 
 var client;
 
@@ -119,42 +117,6 @@ let knownCommands = {
   rr
 };
 
-//API GIT
-
-function tempusGET(endPoint){
-  return params = {
-    baseUrl: tempusBase,
-    headers: {
-      'Accept': 'application/json'},
-    uri: endPoint,
-    method: 'GET',
-    json: true,
-  };
-}
-
-//Search function
-//Type should be map or player
-function tempusSearch(query, type){
-  return new Promise(function (resolve, reject) {
-    request (tempusGET(searchEnd + query))
-    .then(function (response){
-      if (type == "map"){
-        console.log(`Returning: ${response.maps[0].name}`);
-        resolve(response.maps[0].name);
-      }
-      else if (type == "player"){
-        console.log(`Returning: ${response.players[0].name}`);
-        resolve(response.players[0].name);
-      }
-    })
-    .catch(function (e){
-      if (!e.type){
-        reject(`${type} not found.`);
-      }
-    })
-  })
-}
-
 //GENERAL PARAMS//
 
 //target
@@ -186,23 +148,26 @@ async function authors(target, context, params){
     sendMessage(target, context, `@${context.username} Usage: !authors map`);
     return;
   }
-  var mapName = await tempusSearch(params[0], "map").catch(e => {
+  var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
+    console.log(`${e}`);
     sendMessage(target, context, `@${context.username} ${e}`);
     return;
-  })
+  });
 
-  request(tempusGET(miEnd + `${mapName}/fullOverview`))
+  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
   .then(async function(response){
-    authors = await parseAuthors(response, true);
+    authors = await tempus.parseAuthors(response, true);
     sendMessage(target, context, `@${context.username} ${mapName} Created by: ${authors}`);
+    return;
   })
   .catch(function(response) {
     if (response.statusCode == 404){
       console.log(`${response.error.error}`);
       sendMessage(target, context, `@${context.username} ${response.error.error}`);
-    }
-  })  
-}
+    };
+    return;
+  });
+};
 
 function stime(target, context, params){
 
@@ -215,8 +180,8 @@ function dtime(target, context, params){
 }
 
 async function rr(target, context, params){
-  activity = await parseActivity(f);
-  sendMessage(target, context, `@${context.username} `);
+  activity = await tempus.parseActivity(f);
+  sendMessage(target, context, `@${context.username} ${activity}`);
 }
 
 async function vid(target, context, params){
@@ -224,15 +189,15 @@ async function vid(target, context, params){
     sendMessage(target, context, `@${context.username} Usage: !vid map`);
     return;
   }
-  var mapName = await tempusSearch(params[0], "map").catch(e => {
+  var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
     sendMessage(target, context, `@${context.username} ${e}`);
     return;
   })
 
-  request(tempusGET(miEnd + `${mapName}/fullOverview`))
+  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
   .then(async function(response){
-    vids = await parseVids(response);
+    vids = await tempus.parseVids(response);
     sendMessage(target, context, `@${context.username} Soldier: ${vids[0]} Demoman: ${vids[1]}`);
   })
   .catch(function(response) {
@@ -244,11 +209,11 @@ async function vid(target, context, params){
 };
 
 function swr(target, context, params){
-  wr(target, context, params, "soldier");
+  tempus.wr(target, context, params, "soldier");
 };
 
 function dwr(target, context, params){
-  wr(target, context, params, "demoman");
+  tempus.wr(target, context, params, "demoman");
 };
 
 async function wr(target, context, params, tf2Class = "both"){
@@ -256,22 +221,24 @@ async function wr(target, context, params, tf2Class = "both"){
     sendMessage(target, context, `@${context.username} Usage: !wr map`);
     return;
   }
-  var mapName = await tempusSearch(params[0], "map").catch(e => {
+  var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
     sendMessage(target, context, `@${context.username} ${e}`);
     return;
   })
 
-  request(tempusGET(miEnd + `${mapName}/fullOverview`))
+  request(tempusGET(api.miEnd + `${mapName}/fullOverview`))
   .then(async function(response){
-    wrs = await parseWR(response, tf2Class);
+    wrs = await tempus.parseWR(response, tf2Class);
     sendMessage(target, context, `@${context.username} ${wrs}`);
+    return;
   })
   .catch(function(response) {
     if (response.statusCode == 404){
       console.log(`${response.error.error}`);
       sendMessage(target, context, `@${context.username} ${response.error.error}`);
     }
+    return;
   })
 };
 
@@ -280,7 +247,7 @@ async function mi(target, context, params){
     sendMessage(target, context, `@${context.username} Usage: !mi map`);
     return;
   }
-  var mapName = await tempusSearch(params[0], "map").catch(e => {
+  var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
     sendMessage(target, context, `@${context.username} ${e}`);
     return;
@@ -291,137 +258,13 @@ async function mi(target, context, params){
   .then(async function(response){
     results = await parseMap(response);
     sendMessage(target, context, `@${context.username} ${mapName}\n${results}`);
+    return;
   })
   .catch(function(response) {
     if (response.statusCode == 404){
       console.log(`${response.error.error}`);
       sendMessage(target, context, `@${context.username} ${response.error.error}`);
     }
+    return;
   })
 };
-
-function parseMap(mapObj){
-  return new Promise (function (resolve, reject){
-    try{
-      let authors = parseAuthors(mapObj),
-      tiers = parseTiers(mapObj)
-      resolve(`${tiers[0]} ${tiers[1]} Created by: ${authors}`);
-    }
-    catch (e){
-      console.log(`Fatal error`);
-      reject(e);
-    }    
-  })
-};
-
-//type should be map_tops, course_wrs, map_wrs, bonus_wrs
-function parseActivity(type, all = false){
-  return new Promise(function (resolve, reject){
-    request(tempusGET(activity))
-    .then(async function(response){
-      //console.log(util.inspect(response, false, null, true));
-      resolve(parseTT(response));      
-    })
-    .catch(function(response) {
-      if (response.statusCode == 404){
-        console.log(`${e}`);
-        reject(e);
-      }
-    })
-  })
-}
-
-function parseTT(activityObj){
-  var response = [];
-  //up to 20 recent map_tops
-  for (i = 0; i < activityObj.length - 14; i++){
-    player = activityObj.record_info[i].player_info[`name`];
-    map = activityObj.record_info[i].map_info[`name`];
-    rank = activityObj.record_info[i].rank;
-    tf2Class = "";
-    activityObj.record_info[i].demo_id[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
-
-    response.push(`${map} - ${player} (${tf2Class} #${rank}`);
-  }
-  return (response.join()).replace(/,/g, " | ");
-}
-
-function parseCourseWR(activityObj){
-
-}
-
-function parseMapWR(activityObj){
-  
-}
-
-function parseBonusWR(activityObj){
-  
-}
-
-function parseAuthors(mapObj, full = false){
-  var mapAuthors = [];
-  if (mapObj.authors.length > 3 && !full){
-    return `multiple authors (!authors)`;
-  }
-  for (i = 0; i < mapObj.authors.length; i++){
-    if (i > 0 & i < mapObj.authors.length - 1){
-      mapAuthors.push(`, `);
-    }
-    mapAuthors.push(mapObj.authors[i].name);
-  }
-  console.log(`Created by: ${mapAuthors}`);
-  return mapAuthors;
-};
-
-function parseTiers(mapObj){
-  var tiers = [];
-  tiers.push(`S: Tier ` + mapObj.tier_info["demoman"]);
-  tiers.push(`D: Tier ` + mapObj.tier_info["soldier"]);
-  console.log(`Tiers: ${tiers}`);
-  return tiers;
-};
-function parseVids(mapObj){
-  var vids = [];
-  vids.push(`youtu.be/` + mapObj.videos["soldier"]);
-  vids.push(`youtu.be/` + mapObj.videos["demoman"]);
-  console.log(`Vids: ${vids}`);
-  return vids;
-}
-function parseWR(mapObj, tf2Class = "both"){
-  var runs = [];
-  
-  if (tf2Class == "soldier"){
-    runs.push(`Soldier WR: ${mapObj.soldier_runs[0]["duration"]}`);
-  }
-  else if (tf2Class == "demoman"){
-    runs.push(`Demoman WR: ${mapObj.demoman_runs[0]["duration"]}`);
-  }
-  else{
-    runs.push(`Demoman WR: ${mapObj.demoman_runs[0]["duration"]}`);
-    runs.push(`Soldier WR: ${mapObj.soldier_runs[0]["duration"]}`);
-  }
-  for (i = 0; i < runs.length; i++){
-    runs[i] = timePrettifier(runs[i]);
-  };
-  return runs;
-};
-function timePrettifier(time){
-  var hours = Math.floor(time / 3600);
-  var minutes = Math.floor(time % 3600 / 60);
-  var seconds = time % 3600 % 60;
-
-  seconds = truncate(seconds, 2);
-  seconds = (seconds < 10) ? `0` + seconds : seconds;
-  minutes = (minutes < 10) ? `0` + minutes : minutes;
-
-  return timeReturn(seconds, minutes, hours);
-}
-function timeReturn(seconds, minutes, hours){
-  return ((hours == 0 ? `` : `${hours}:`) +
-          (minutes == 0 && hours == 0 ? `` : `${minutes}:`) +
-          (minutes == 0 && hours == 0 ? `${seconds}s` : `${seconds}`)
-  );
-}
-function truncate(t, d){
-  return Math.trunc(t * Math.pow(10, d)) / Math.pow(10, d);
-}
