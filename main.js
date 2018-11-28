@@ -203,7 +203,7 @@ async function vid(target, context, params){
   .catch(function(response) {
     if (response.statusCode == 404){
       console.log(`${response.error.error}`);
-      sendMessage(target, context, `@${context.username} ${response.error.error}`);
+      //sendMessage(target, context, `@${context.username} ${response.error.error}`);
     }
   })
 };
@@ -223,7 +223,7 @@ async function wr(target, context, params, tf2Class = "both"){
   }
   var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
-    sendMessage(target, context, `@${context.username} ${e}`);
+    //sendMessage(target, context, `@${context.username} ${e}`);
     return;
   })
 
@@ -236,7 +236,7 @@ async function wr(target, context, params, tf2Class = "both"){
   .catch(function(response) {
     if (response.statusCode == 404){
       console.log(`${response.error.error}`);
-      sendMessage(target, context, `@${context.username} ${response.error.error}`);
+      //sendMessage(target, context, `@${context.username} ${response.error.error}`);
     }
     return;
   })
@@ -263,7 +263,7 @@ async function mi(target, context, params){
   .catch(function(response) {
     if (response.statusCode == 404){
       console.log(`${response.error.error}`);
-      sendMessage(target, context, `@${context.username} ${response.error.error}`);
+      //sendMessage(target, context, `@${context.username} ${response.error.error}`);
     }
     return;
   })

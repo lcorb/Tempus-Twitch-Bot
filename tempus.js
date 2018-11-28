@@ -32,7 +32,7 @@ function parseActivity(type, all = false) {
       });
   });
 }
-function parseTT(activityObj) {
+function parseActivityTT(activityObj) {
   var response = [];
   //up to 20 recent map_tops
   for (i = 0; i < activityObj.length - 14; i++) {
@@ -41,18 +41,28 @@ function parseTT(activityObj) {
     rank = activityObj.record_info[i].rank;
     tf2Class = "";
     activityObj.record_info[i].demo_id[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
-    response.push(`${map} - ${player} (#${rank} ${tf2Class} )`);
+    response.push(`(${tf2Class}) ${map} - ${player} [#${rank}]`);
     response.push(utils.addWhitespace(response[i].length));
   }
   return (response.join()).replace(/,/g, "");
 }
-function parseCourseWR(activityObj) {
+
+//course_wrs, map_wrs, bonus_wrs
+function parseActivityWR(activityObj, type) {
   var response = [];
+  //up to 20 recent wrs
+  for (i = 0; i < activityObj.type.length - 14; i++) {
+    player = activityObj.type.record_info[i].player_info[`name`];
+    map = activityObj.type.record_info[i].map_info[`name`];
+    rank = activityObj.type.record_info[i].rank;
+    tf2Class = "";
+    activityObj.type.record_info[i].demo_id[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
+    response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type === (`map_wrs`)  ? `- C`: `- B` + `${activityObj.type.zone_info[`zoneindex`]}`);
+    response.push(utils.addWhitespace(response[i].length));
+  }
+  return (response.join()).replace(/,/g, "");
 }
-function parseMapWR(activityObj) {
-}
-function parseBonusWR(activityObj) {
-}
+
 function parseAuthors(mapObj, full = false) {
   var mapAuthors = [];
   if (mapObj.authors.length > 3 && !full) {
