@@ -32,22 +32,8 @@ function parseActivity(type, all = false) {
       });
   });
 }
-function parseActivityTT(activityObj) {
-  var response = [];
-  //up to 20 recent map_tops
-  for (i = 0; i < activityObj.length - 14; i++) {
-    player = activityObj.record_info[i].player_info[`name`];
-    map = activityObj.record_info[i].map_info[`name`];
-    rank = activityObj.record_info[i].rank;
-    tf2Class = "";
-    activityObj.record_info[i].demo_id[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
-    response.push(`(${tf2Class}) ${map} - ${player} [#${rank}]`);
-    response.push(utils.addWhitespace(response[i].length));
-  }
-  return (response.join()).replace(/,/g, "");
-}
 
-//course_wrs, map_wrs, bonus_wrs
+//type should be map_tops, course_wrs, map_wrs, bonus_wrs
 function parseActivityWR(activityObj, type) {
   var response = [];
   //up to 20 recent wrs
@@ -57,7 +43,12 @@ function parseActivityWR(activityObj, type) {
     rank = activityObj.type.record_info[i].rank;
     tf2Class = "";
     activityObj.type.record_info[i].demo_id[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
-    response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type === (`map_wrs`)  ? `- C`: `- B` + `${activityObj.type.zone_info[`zoneindex`]}`);
+    if (type === `map_tops`){
+      response.push(`(${tf2Class}) ${map} - ${player} [#${rank}]`);
+    }
+    else{
+      response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type !== (`map_wrs`)  ? `- C`: `- B` + `${activityObj.type.zone_info[`zoneindex`]}`);
+    }    
     response.push(utils.addWhitespace(response[i].length));
   }
   return (response.join()).replace(/,/g, "");
