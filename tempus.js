@@ -9,29 +9,28 @@ function parseMap(mapObj) {
       let authors = parseAuthors(mapObj), tiers = parseTiers(mapObj);
       resolve(`${tiers[0]} ${tiers[1]} Created by: ${authors}`);
     }
-    catch (e) {
+    catch(e) {
       console.log(`Fatal error`);
       reject(e);
-    }
+    };
   });
-}
-;
+};
 //type should be map_tops, course_wrs, map_wrs, bonus_wrs
 function parseActivity(type, all = false) {
   return new Promise(function (resolve, reject) {
     request(tempusGET(api.activity))
       .then(async function (response) {
         //console.log(util.inspect(response, false, null, true));
-        resolve(parseTT(response));
+        resolve(parseActivityWR(response, type));
       })
       .catch(function (response) {
         if (response.statusCode == 404) {
           console.log(`${e}`);
           reject(e);
-        }
+        };
       });
   });
-}
+};
 
 //type should be map_tops, course_wrs, map_wrs, bonus_wrs
 function parseActivityWR(activityObj, type) {
@@ -52,7 +51,7 @@ function parseActivityWR(activityObj, type) {
     response.push(utils.addWhitespace(response[i].length));
   }
   return (response.join()).replace(/,/g, "");
-}
+};
 
 function parseAuthors(mapObj, full = false) {
   var mapAuthors = [];
@@ -67,23 +66,23 @@ function parseAuthors(mapObj, full = false) {
   }
   console.log(`Created by: ${mapAuthors}`);
   return mapAuthors;
-}
-;
+};
 function parseTiers(mapObj) {
   var tiers = [];
   tiers.push(`S: Tier ` + mapObj.tier_info["demoman"]);
+  tiers.push(addWhitespace(tiers[0].length));
   tiers.push(`D: Tier ` + mapObj.tier_info["soldier"]);
   console.log(`Tiers: ${tiers}`);
   return tiers;
-}
-;
+};
 function parseVids(mapObj) {
   var vids = [];
   vids.push(`youtu.be/` + mapObj.videos["soldier"]);
+  vids.push(utils.addWhitespace(vids[0].length));
   vids.push(`youtu.be/` + mapObj.videos["demoman"]);
   console.log(`Vids: ${vids}`);
   return vids;
-}
+};
 function parseWR(mapObj, tf2Class = "both") {
   var runs = [];
   if (tf2Class == "soldier") {
@@ -94,12 +93,12 @@ function parseWR(mapObj, tf2Class = "both") {
   }
   else {
     runs.push(`Demoman WR: ${mapObj.demoman_runs[0]["duration"]}`);
+    runs.push(addWhitespace(runs[0].length));
     runs.push(`Soldier WR: ${mapObj.soldier_runs[0]["duration"]}`);
   }
   for (i = 0; i < runs.length; i++) {
     runs[i] = utils.timePrettifier(runs[i]);
-  }
-  ;
+  };
   return runs;
 }
 

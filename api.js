@@ -39,7 +39,7 @@ function tempusSearch(query, type) {
         }
       });
   });
-}
+};
 
 module.exports = {
   tempusGET,
@@ -48,7 +48,3 @@ module.exports = {
   activity
 }
 ;
-// module.exports.tempusGET = tempusGET
-// module.exports.tempusSearch = tempusSearch
-// module.exports.miEnd = miEnd
-// module.exports.activity = activity
