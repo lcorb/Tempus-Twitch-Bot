@@ -32,5 +32,4 @@ function addWhitespace(currentLength) {
 
 module.exports.utils = {
   timePrettifier,
-  addWhitespace}
-;
+  addWhitespace};

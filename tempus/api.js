@@ -2,7 +2,7 @@ const request = require('request-promise');
 
 const tempusBase = `https://tempus.xyz/api`,
       miEnd = "/maps/name/",
-      activity = "/activity",
+      activityEnd = "/activity",
       searchEnd = "/search/playersAndMaps/";
 
 
@@ -45,6 +45,5 @@ module.exports = {
   tempusGET,
   tempusSearch,
   miEnd,
-  activity
-}
-;
+  activityEnd
+};

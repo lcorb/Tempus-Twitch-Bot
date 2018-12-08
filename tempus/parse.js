@@ -1,5 +1,5 @@
-const api = require('./api.js'),
-      utils = require('./utils.js'),
+const api = require('../tempus/api.js'),
+      utils = require('../utils.js'),
       request = require('request-promise'),
       util = require('util');
 
@@ -18,10 +18,29 @@ function parseMap(mapObj) {
 //type should be map_tops, course_wrs, map_wrs, bonus_wrs
 function parseActivity(type, all = false) {
   return new Promise(function (resolve, reject) {
-    request(tempusGET(api.activity))
-      .then(async function (response) {
-        //console.log(util.inspect(response, false, null, true));
-        resolve(parseActivityWR(response, type));
+    request(api.tempusGET(api.activityEnd))
+      .then(async function (activityObj) {
+        var response = [];
+        //up to 20 recent wrs
+        for (var i = 0; i < activityObj[type].length - 14; i++) {
+          var player = activityObj[type][i].player_info[`name`],
+              map = activityObj[type][i].map_info[`name`],
+              rank = activityObj[type][i].record_info.rank,
+              tf2Class = "";
+          activityObj[type][i].record_info[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
+          console.log(`${player} + ${map} + ${rank} + ${tf2Class} + ${type}`);
+          if (type === `map_tops`){
+            response.push(`(${tf2Class}) ${map} - ${player} [#${rank}]`);
+          }
+          else{
+            response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type !== (`map_wrs`)  ? `- C`: `- B` + `${activityObj[type][i].zone_info[`zoneindex`]}`);
+          }
+          console.log(response[i].length);
+          response.push(utils.addWhitespace(response[i].length));
+        }
+        response.join().replace(/,/g, "");
+        console.log(`Response: ${response}`);
+        resolve(response);
       })
       .catch(function (response) {
         if (response.statusCode == 404) {
@@ -30,27 +49,6 @@ function parseActivity(type, all = false) {
         };
       });
   });
-};
-
-//type should be map_tops, course_wrs, map_wrs, bonus_wrs
-function parseActivityWR(activityObj, type) {
-  var response = [];
-  //up to 20 recent wrs
-  for (i = 0; i < activityObj.type.length - 14; i++) {
-    player = activityObj.type.record_info[i].player_info[`name`];
-    map = activityObj.type.record_info[i].map_info[`name`];
-    rank = activityObj.type.record_info[i].rank;
-    tf2Class = "";
-    activityObj.type.record_info[i].demo_id[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
-    if (type === `map_tops`){
-      response.push(`(${tf2Class}) ${map} - ${player} [#${rank}]`);
-    }
-    else{
-      response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type !== (`map_wrs`)  ? `- C`: `- B` + `${activityObj.type.zone_info[`zoneindex`]}`);
-    }    
-    response.push(utils.addWhitespace(response[i].length));
-  }
-  return (response.join()).replace(/,/g, "");
 };
 
 function parseAuthors(mapObj, full = false) {
@@ -102,10 +100,11 @@ function parseWR(mapObj, tf2Class = "both") {
   return runs;
 }
 
-module.exports.tempus = {
+module.exports = {
   parseMap,
-  parseTT,
+  parseActivity,
   parseAuthors,
   parseTiers,
-  parseWR}
-;
+  parseVids,
+  parseWR
+};
