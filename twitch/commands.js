@@ -59,6 +59,7 @@ function dtime(target, context, params) {
 async function rr(target, context, params) {
   //type should be map_tops, course_wrs, map_wrs, bonus_wrs
   var activity = await tempus.parseActivity("map_tops");
+  console.log(activity);
   twitch.sendMessage(target, context, `@${context.username} ${activity}`);
 };
 async function vid(target, context, params) {

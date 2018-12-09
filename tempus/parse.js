@@ -22,7 +22,7 @@ function parseActivity(type, all = false) {
       .then(async function (activityObj) {
         var response = [];
         //up to 20 recent wrs
-        for (var i = 0; i < activityObj[type].length - 14; i++) {
+        for (var i = 0; i < activityObj[type].length - 15; i++) {
           var player = activityObj[type][i].player_info[`name`],
               map = activityObj[type][i].map_info[`name`],
               rank = activityObj[type][i].record_info.rank,
@@ -35,12 +35,12 @@ function parseActivity(type, all = false) {
           else{
             response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type !== (`map_wrs`)  ? `- C`: `- B` + `${activityObj[type][i].zone_info[`zoneindex`]}`);
           }
-          console.log(response[i].length);
-          response.push(utils.addWhitespace(response[i].length));
+          var whiteSpace = utils.addWhitespace(response[i].length);
+          response.push(whiteSpace);
         }
-        response.join().replace(/,/g, "");
+        
         console.log(`Response: ${response}`);
-        resolve(response);
+        resolve(response.join(``));
       })
       .catch(function (response) {
         if (response.statusCode == 404) {
