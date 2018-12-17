@@ -1,4 +1,4 @@
-const lineLength = 44;
+const lineLength = 45;
 
 function timePrettifier(time) {
   var hours = Math.floor(time / 3600);
@@ -20,11 +20,17 @@ function truncate(t, d) {
   return Math.trunc(t * Math.pow(10, d)) / Math.pow(10, d);
 }
 
-function addWhitespace(currentLength) {
-  var lengthLeft = lineLength - (currentLength % lineLength);
-  // ` ‏‏‎ ` << Weird fake whitespace char
-  var spaces = new Array(lengthLeft + 1).join(` ‏‏‎ `);
-  console.log(`Returning: ${spaces}`);
+function addWhitespace(currentLength) {  
+  if (currentLength == lineLength){
+    return ``;
+  }
+  //Divide because of weird whitespace char
+  var lengthLeft = Math.round((lineLength % currentLength)/3);
+  console.log(`${lengthLeft} = ${lineLength} - (${currentLength} % ${lineLength})`);
+  // ` ‏‏‎` << Weird fake whitespace char
+  var spaces = new Array(lengthLeft + 1).join(` ‏‏‎`);
+  console.log(spaces.length);
+  console.log(`Returning: '${spaces}'`);
   return spaces;
 }
 

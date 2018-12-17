@@ -35,12 +35,16 @@ function parseActivity(type, all = false) {
           else{
             response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type !== (`map_wrs`)  ? `- C`: `- B` + `${activityObj[type][i].zone_info[`zoneindex`]}`);
           }
-          var whiteSpace = utils.addWhitespace(response[i].length);
-          response.push(whiteSpace);
+          //FIXME
+          //whiteSpace not formatting response correctly
+          //var whiteSpace = utils.addWhitespace(response[i].length);
+          //response.push(whiteSpace);
         }
         
         console.log(`Response: ${response}`);
-        resolve(response.join(``));
+        //Dont split due to lack of whitespace
+        //resolve(response.join(``));
+        resolve(response);
       })
       .catch(function (response) {
         if (response.statusCode == 404) {
@@ -57,13 +61,15 @@ function parseAuthors(mapObj, full = false) {
     return `multiple authors (!authors)`;
   }
   for (i = 0; i < mapObj.authors.length; i++) {
-    if (i > 0 & i < mapObj.authors.length - 1) {
+    if (i > 0 && i < mapObj.authors.length - 1) {
       mapAuthors.push(`, `);
+    }
+    else if (i !== 0) {
+      mapAuthors.push(` & `)
     }
     mapAuthors.push(mapObj.authors[i].name);
   }
-  console.log(`Created by: ${mapAuthors}`);
-  return mapAuthors;
+  return mapAuthors.join(``);
 };
 function parseTiers(mapObj) {
   var tiers = [];

@@ -41,7 +41,7 @@ async function authors(target, context, params) {
   request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
     .then(async function (response) {
       var authors = await tempus.parseAuthors(response, true);
-      twitch.sendMessage(target, context, `@${context.username} ${mapName} Created by: ${authors}`);
+      twitch.sendMessage(target, context, `@${context.username} ${mapName} || Created by: ${authors}`);
       return;
     })
     .catch(function (response) {
@@ -60,7 +60,11 @@ async function rr(target, context, params) {
   //type should be map_tops, course_wrs, map_wrs, bonus_wrs
   var activity = await tempus.parseActivity("map_tops");
   console.log(activity);
-  twitch.sendMessage(target, context, `@${context.username} ${activity}`);
+  //Split into multiple messages due to formatting issues - whiteSpace()
+  //twitch.sendMessage(target, context, `@${context.username} Recent Records: ${activity}`);
+  activity.forEach(e =>{
+    twitch.sendMessage(target, context, `${e}`);
+  })  
 };
 async function vid(target, context, params) {
   if (!params.length) {
@@ -97,7 +101,7 @@ async function wr(target, context, params, tf2Class = "both") {
   }
   var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
-    //twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    twitch.sendMessage(target, context, `@${context.username} ${e}`);
     return;
   });
   request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
@@ -141,12 +145,12 @@ async function mi(target, context, params) {
 };
 
 module.exports = {
-    knownCommands,
-    stime,
-    dtime,
-    mi,
-    vid,
-    wr,
-    authors,
-    rr
-  };
+  knownCommands,
+  stime,
+  dtime,
+  mi,
+  vid,
+  wr,
+  authors,
+  rr
+};
