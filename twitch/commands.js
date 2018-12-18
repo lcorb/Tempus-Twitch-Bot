@@ -53,9 +53,49 @@ async function authors(target, context, params) {
     });
 };
 function stime(target, context, params) {
+  if (!params.length) {
+    twitch.sendMessage(target, context, `@${context.username} Usage: !stime (map|place) (map|place)`);
+    return;
+  }
+  runTime(target, context, params, `soldier`);
 };
 function dtime(target, context, params) {
+  if (!params.length) {
+    twitch.sendMessage(target, context, `@${context.username} Usage: !dtime (map|place) (map|place)`);
+    return;
+  }
+  runTime(target, context, params, `demoman`);
 };
+function runTime(target, context, params, tf2Class = "both") {
+  if (!params.length) {
+    twitch.sendMessage(target, context, `@${context.username} Usage: !time (map|place) (map|place)`);
+    return;
+  }
+  var order = determineParameters(params[0], params[1]);
+  if (order === null){
+    twitch.sendMessage(target, context, `@${context.username} These arguments don't look right`);
+    return;
+  }
+  else {
+    var mapName = await api.tempusSearch(params[order], "Map").catch(e => {
+      twitch.sendMessage(target, context, `@${context.username} ${e}`);
+      return;
+    });
+    var pos = (order === 0 ? parseInt(params[0]) : parseInt(params[1]));
+  }
+  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
+  .then(async function (response) {
+    var times = await tempus.parseTime(response, tf2Class, pos);  
+    twitch.sendMessage(target, context, `@${context.username} ${times}`);
+    return;
+  })
+  .catch(function (response) {
+    if (response.statusCode == 404) {
+      console.log(`${response.error.error}`);
+    };
+    return;
+  });
+}
 async function rr(target, context, params) {
   //type should be map_tops, course_wrs, map_wrs, bonus_wrs
   var activity = await tempus.parseActivity("map_tops");
@@ -89,10 +129,20 @@ async function vid(target, context, params) {
     });
 };
 function swr(target, context, params) {
-  tempus.wr(target, context, params, "soldier");
+  if (!params.length) {
+    twitch.sendMessage(target, context, `@${context.username} Usage: !swr map`);
+    return;
+  }
+
+  wr(target, context, params, "soldier");
 };
 function dwr(target, context, params) {
-  tempus.wr(target, context, params, "demoman");
+  if (!params.length) {
+    twitch.sendMessage(target, context, `@${context.username} Usage: !dwr map`);
+    return;
+  }
+
+  wr(target, context, params, "demoman");
 };
 async function wr(target, context, params, tf2Class = "both") {
   if (!params.length) {
@@ -107,7 +157,7 @@ async function wr(target, context, params, tf2Class = "both") {
   request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
     .then(async function (response) {
       var wrs = await tempus.parseWR(response, tf2Class);
-      twitch.sendMessage(target, context, `@${context.username} ${wrs}`);
+      twitch.sendMessage(target, context, `@${context.username} ${mapName} ${wrs}`);
       return;
     })
     .catch(function (response) {
@@ -151,6 +201,8 @@ module.exports = {
   mi,
   vid,
   wr,
+  swr,
+  dwr,
   authors,
   rr
 };

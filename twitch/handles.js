@@ -12,17 +12,17 @@ function onMessageHandler(target, context, msg, self) {
     return;
   }
   
-  // Split the message into individual words:
+  //Split the message into individual words:
   const parse = msg.slice(1).split(' ');
-  // The command name is the first (0th) one:
+  //The command name is the first (0th) one:
   const commandName = parse[0];
-  // The rest (if any) are the parameters:
+  //The rest (if any) are the parameters:
   const params = parse.splice(1);
-  // If the command is known, let's execute it:
+  //If the command is known, let's execute it:
   if (commandName in knownCommands) {
-    // Retrieve the function by its name:
+    //Retrieve the function by its name:
     const command = knownCommands[commandName];
-    // Then call the command with parameters:
+    //Then call the command with parameters:
     command(target, context, params);
     console.log(`* Executed ${commandName} command for ${context.username}`);
   }

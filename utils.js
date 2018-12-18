@@ -9,7 +9,7 @@ function timePrettifier(time) {
   minutes = (minutes < 10) ? `0` + minutes : minutes;
   return timeReturn(seconds, minutes, hours);
 }
-
+//Final formatting pass to decide whether to include hours & minutes or append `s` to seconds
 function timeReturn(seconds, minutes, hours) {
   return ((hours == 0 ? `` : `${hours}:`) +
     (minutes == 0 && hours == 0 ? `` : `${minutes}:`) +
@@ -33,8 +33,24 @@ function addWhitespace(currentLength) {
   console.log(`Returning: '${spaces}'`);
   return spaces;
 }
+//Determines the order of parameters, whether it starts with a map name or placement number
+//1 is place
+//0 is map
+//This is done to use the return value for an array
+function determineParameters(p1, p2){
+  if (!Number(p1) && Number(p2)){
+    return 1;
+  }
+  else if (!Number(p2) && Number(p1)){
+    return 0;
+  }
+  else{
+    return null;
+  }
+}
 
 module.exports = {
   timePrettifier,
-  addWhitespace
+  addWhitespace,
+  determineParameters
 };

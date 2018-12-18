@@ -2,7 +2,8 @@ const api = require('../tempus/api.js'),
       utils = require('../utils.js'),
       request = require('request-promise'),
       util = require('util');
-
+      //console.log(util.inspect(THING, false, null, true))
+  
 function parseMap(mapObj) {
   return new Promise(function (resolve, reject) {
     try {
@@ -73,9 +74,8 @@ function parseAuthors(mapObj, full = false) {
 };
 function parseTiers(mapObj) {
   var tiers = [];
-  tiers.push(`S: Tier ` + mapObj.tier_info["demoman"]);
-  tiers.push(addWhitespace(tiers[0].length));
-  tiers.push(`D: Tier ` + mapObj.tier_info["soldier"]);
+  tiers.push(`(S) Tier ` + mapObj.tier_info["demoman"]);
+  tiers.push(`(D) Tier ` + mapObj.tier_info["soldier"]);
   console.log(`Tiers: ${tiers}`);
   return tiers;
 };
@@ -90,20 +90,33 @@ function parseVids(mapObj) {
 function parseWR(mapObj, tf2Class = "both") {
   var runs = [];
   if (tf2Class == "soldier") {
-    runs.push(`Soldier WR: ${mapObj.soldier_runs[0]["duration"]}`);
+    runs.push(`(S) ${mapObj.demoman_runs[0].name} - ${utils.timePrettifier(mapObj.soldier_runs[0].duration)}`);
   }
   else if (tf2Class == "demoman") {
-    runs.push(`Demoman WR: ${mapObj.demoman_runs[0]["duration"]}`);
+    runs.push(`(D) ${mapObj.demoman_runs[0].name} - ${utils.timePrettifier(mapObj.demoman_runs[0].duration)}`);
   }
   else {
-    runs.push(`Demoman WR: ${mapObj.demoman_runs[0]["duration"]}`);
-    runs.push(addWhitespace(runs[0].length));
-    runs.push(`Soldier WR: ${mapObj.soldier_runs[0]["duration"]}`);
+    runs.push(`(D) ${mapObj.demoman_runs[0].name} - ${utils.timePrettifier(mapObj.demoman_runs[0].duration)}`);
+    runs.push(`(S) ${mapObj.soldier_runs[0].name} - ${utils.timePrettifier(mapObj.soldier_runs[0].duration)}`);
   }
-  for (i = 0; i < runs.length; i++) {
-    runs[i] = utils.timePrettifier(runs[i]);
-  };
-  return runs;
+  console.log(runs);
+  return runs.join(` | `);
+}
+//zone can be map, bonus, course, trick
+function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map"){
+  position -= 1;
+  //Workaround to dynamically retrieve class specific info in mapObj
+  tf2ClassEnd = tf2Class + `_runs`
+
+  if (tf2Class == "both"){
+    return(`[Rank ${position}] on ${mapObj.map_info.name} -
+     (D) ${mapObj.demoman_runs[position].name} - ${mapObj.soldier_runs[position].duration} | 
+     (S) ${mapObj.soldier_runs[position].name} - ${mapObj.soldier_runs[position].duration}`)
+  }
+  else{
+    return(`(${tf2Class.charAt(0).toUpperCase}) ${mapObj.tf2ClassEnd[position].name} is rank ${position} of ${mapObj.tf2ClassEnd.length} with
+     ${utils.timePrettifier(mapObj.tf2ClassEnd[position].duration)}`)
+  }
 }
 
 module.exports = {
@@ -112,5 +125,6 @@ module.exports = {
   parseAuthors,
   parseTiers,
   parseVids,
-  parseWR
+  parseWR,
+  parseTime
 };

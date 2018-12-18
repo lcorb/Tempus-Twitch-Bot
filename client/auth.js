@@ -19,7 +19,8 @@ async function auth(){
       password: 'oauth:' + `${auth}`
     },
     channels: [
-      `scotchtoberfest`
+      `scotchtoberfest`,
+      `tempusstats`
     ]
   };
 }
