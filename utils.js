@@ -36,21 +36,36 @@ function addWhitespace(currentLength) {
 //Determines the order of parameters, whether it starts with a map name or placement number
 //1 is place
 //0 is map
-//This is done to use the return value for an array
+//This is done to use the return value for an array index
 function determineParameters(p1, p2){
-  if (!Number(p1) && Number(p2)){
-    return 1;
-  }
-  else if (!Number(p2) && Number(p1)){
-    return 0;
-  }
-  else{
-    return null;
-  }
+  console.log(`Determining parameters...`);
+  return new Promise(function (resolve, reject) {
+    if (!Number(p1) && Number(p2)){
+      //Order is map place
+      resolve(0);
+    }
+    else if (!Number(p2) && Number(p1)){
+      //Order is place map
+      resolve(1);
+    }
+    else{
+      //Order contains either 2 numbers or no numbers - could be an issue for specific maps, adding prefix will fix
+      reject(null);
+    }
+  });
+}
+
+function classSymbol(s){
+  return s.charAt(0).toUpperCase();
+}
+
+function formatRunType(zone, index){
+  
 }
 
 module.exports = {
   timePrettifier,
   addWhitespace,
-  determineParameters
+  determineParameters,
+  classSymbol
 };

@@ -107,15 +107,16 @@ function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map"){
   position -= 1;
   //Workaround to dynamically retrieve class specific info in mapObj
   tf2ClassEnd = tf2Class + `_runs`
-
-  if (tf2Class == "both"){
+  tf2ClassSymbol = tf2Class.charAt(0);
+  console.log(`Pos: ${position}\nClass: ${tf2ClassEnd}`);
+  if (tf2Class === "both_runs"){
     return(`[Rank ${position}] on ${mapObj.map_info.name} -
      (D) ${mapObj.demoman_runs[position].name} - ${mapObj.soldier_runs[position].duration} | 
-     (S) ${mapObj.soldier_runs[position].name} - ${mapObj.soldier_runs[position].duration}`)
+     (S) ${mapObj.soldier_runs[position].name} - ${mapObj.soldier_runs[position].duration}`);
   }
   else{
-    return(`(${tf2Class.charAt(0).toUpperCase}) ${mapObj.tf2ClassEnd[position].name} is rank ${position} of ${mapObj.tf2ClassEnd.length} with
-     ${utils.timePrettifier(mapObj.tf2ClassEnd[position].duration)}`)
+    return(`(${utils.classSymbol(tf2Class)}) ${mapObj[tf2ClassEnd][position].name} is ranked ${position+1} of ${mapObj[tf2ClassEnd].length} with
+     ${utils.timePrettifier(mapObj[tf2ClassEnd][position].duration)} on ${mapObj.map_info.name}`);
   }
 }
 

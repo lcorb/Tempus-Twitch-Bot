@@ -2,6 +2,8 @@ const twitch = require("./message.js");
 const api = require('../tempus/api.js');
 const tempus = require('../tempus/parse.js');
 const request = require('request-promise');
+const utils = require(`../utils.js`);
+const util = require('util');
 
 let knownCommands = {
     stime,
@@ -66,26 +68,34 @@ function dtime(target, context, params) {
   }
   runTime(target, context, params, `demoman`);
 };
-function runTime(target, context, params, tf2Class = "both") {
+async function runTime(target, context, params, tf2Class = `both`, type = `map`) {
   if (!params.length) {
     twitch.sendMessage(target, context, `@${context.username} Usage: !time (map|place) (map|place)`);
     return;
   }
-  var order = determineParameters(params[0], params[1]);
-  if (order === null){
-    twitch.sendMessage(target, context, `@${context.username} These arguments don't look right`);
-    return;
-  }
-  else {
-    var mapName = await api.tempusSearch(params[order], "Map").catch(e => {
-      twitch.sendMessage(target, context, `@${context.username} ${e}`);
+  var order = await utils.determineParameters(params[0], params[1])
+    .catch(e =>{
+      twitch.sendMessage(target, context, `@${context.username} These arguments don't look right`);
       return;
-    });
-    var pos = (order === 0 ? parseInt(params[0]) : parseInt(params[1]));
-  }
+    })
+  var mapName = await api.tempusSearch(params[order], "Map")
+  .catch(e => {
+    twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    return;
+  });
+  var pos = (order === 1 ? parseInt(params[0]) : parseInt(params[1]));
+  request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}map/1/records/list?limit=150`))
+  .then(async function (response) {
+    console.log(util.inspect(response, false, null, true));
+    return;
+  })
+  .catch(function (response) {
+    console.log(util.inspect(response, false, null, true));
+    return;
+  });
   request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
   .then(async function (response) {
-    var times = await tempus.parseTime(response, tf2Class, pos);  
+    var times = await tempus.parseTime(response, tf2Class, pos);
     twitch.sendMessage(target, context, `@${context.username} ${times}`);
     return;
   })
