@@ -8,12 +8,13 @@ const tempusBase = `https://tempus.xyz/api`,
 
 
 
-function tempusGET(endPoint){
+function tempusGET(endPoint, queryString){
     return params = {
         baseUrl: tempusBase,
         headers: {
         'Accept': 'application/json'},
         uri: endPoint,
+        qs: queryString,
         method: 'GET',
         json: true,
     };

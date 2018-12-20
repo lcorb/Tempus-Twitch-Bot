@@ -1,7 +1,7 @@
-const knownCommands = require("./commands"),
+const twitch = require("./message.js"),
+      knownCommands = require("./commands.js"),
       commandPrefix = '!';
 
-//Called every time a message comes in:
 function onMessageHandler(target, context, msg, self) {
   if (self) {
     return;
@@ -11,20 +11,21 @@ function onMessageHandler(target, context, msg, self) {
     console.log(`[${target} (${context['message-type']})] ${context.username}: ${msg}`);
     return;
   }
-  
-  //Split the message into individual words:
-  const parse = msg.slice(1).split(' ');
-  //The command name is the first (0th) one:
-  const commandName = parse[0];
-  //The rest (if any) are the parameters:
-  const params = parse.splice(1);
-  //If the command is known, let's execute it:
+  msg = msg.toLowerCase();
+  const parse = msg.slice(1).split(' '),
+        commandName = parse[0],
+        params = parse.splice(1);
   if (commandName in knownCommands) {
-    //Retrieve the function by its name:
     const command = knownCommands[commandName];
-    //Then call the command with parameters:
-    command(target, context, params);
-    console.log(`* Executed ${commandName} command for ${context.username}`);
+    if (!params.length && knownCommands.commandList[commandName].usage){
+      console.log(`We are here`)
+      console.log(`* Failed ${commandName} command for ${context.username}`);
+      twitch.sendMessage(target, context, `@${context.username} Usage: ${commandPrefix}${commandName} ${knownCommands.commandList[commandName].usage}`);
+    }
+    else{
+      command(target, context, params);
+      console.log(`* Executed ${commandName} command for ${context.username}`);
+    }
   }
   else {
     console.log(`* Unknown command ${commandName} from ${context.username}`);

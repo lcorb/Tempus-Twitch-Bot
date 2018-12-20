@@ -29,9 +29,8 @@ function parseActivity(type, all = false) {
               rank = activityObj[type][i].record_info.rank,
               tf2Class = "";
           activityObj[type][i].record_info[`class`] === 3 ? tf2Class = "S" : tf2Class = "D";
-          console.log(`${player} + ${map} + ${rank} + ${tf2Class} + ${type}`);
           if (type === `map_tops`){
-            response.push(`(${tf2Class}) ${map} - ${player} [#${rank}]`);
+            response.push(`(${tf2Class}) [#${rank}] ${map} - ${player}`);
           }
           else{
             response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type !== (`map_wrs`)  ? `- C`: `- B` + `${activityObj[type][i].zone_info[`zoneindex`]}`);
@@ -41,8 +40,6 @@ function parseActivity(type, all = false) {
           //var whiteSpace = utils.addWhitespace(response[i].length);
           //response.push(whiteSpace);
         }
-        
-        console.log(`Response: ${response}`);
         //Dont split due to lack of whitespace
         //resolve(response.join(``));
         resolve(response);

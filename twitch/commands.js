@@ -1,19 +1,35 @@
 const twitch = require("./message.js");
-const api = require('../tempus/api.js');
-const tempus = require('../tempus/parse.js');
-const request = require('request-promise');
-const utils = require(`../utils.js`);
-const util = require('util');
+      api = require('../tempus/api.js'),
+      tempus = require('../tempus/parse.js'),
+      request = require('request-promise'),
+      utils = require(`../utils.js`),
+      util = require('util');
 
-let knownCommands = {
-    stime,
-    dtime,
-    mi,
-    vid,
-    wr,
-    swr,
-    dwr,
-    authors,
+const commandList = {
+    stime: {
+      usage: `(map|place) (map|place)`
+    },
+    dtime:{
+      usage: `(map|place) (map|place)`
+    },
+    mi:{
+      usage: `map`
+    },
+    vid:{
+      usage: `map`
+    },
+    wr:{
+      usage: `map`
+    },
+    swr:{
+      usage: `map`
+    },
+    dwr:{
+      usage: `map`
+    },
+    authors:{
+      usage: `map`
+    },
     rr
   };
   
@@ -28,13 +44,7 @@ let knownCommands = {
   //params
   //parsed parameters (everything after the original command)
   
-  //////////////////
-
 async function authors(target, context, params) {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !authors map`);
-    return;
-  }
   var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
@@ -55,54 +65,30 @@ async function authors(target, context, params) {
     });
 };
 function stime(target, context, params) {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !stime (map|place) (map|place)`);
-    return;
-  }
   runTime(target, context, params, `soldier`);
 };
 function dtime(target, context, params) {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !dtime (map|place) (map|place)`);
-    return;
-  }
   runTime(target, context, params, `demoman`);
 };
-async function runTime(target, context, params, tf2Class = `both`, type = `map`) {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !time (map|place) (map|place)`);
+async function runTime(target, context, params, tf2Class = `both`, type = `map`, zoneIndex = 1) {
+  var order = await utils.determineParameters(params[0], params[1], params[2], params[3])
+  .catch(e =>{
+    twitch.sendMessage(target, context, `@${context.username} These arguments don't look right`);
     return;
-  }
-  var order = await utils.determineParameters(params[0], params[1])
-    .catch(e =>{
-      twitch.sendMessage(target, context, `@${context.username} These arguments don't look right`);
-      return;
-    })
+  });
+
   var mapName = await api.tempusSearch(params[order], "Map")
   .catch(e => {
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
     return;
   });
   var pos = (order === 1 ? parseInt(params[0]) : parseInt(params[1]));
-  request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}map/1/records/list?limit=150`))
+  request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}bonus/1/records/list`, {limit: 100, start: pos}))
   .then(async function (response) {
     console.log(util.inspect(response, false, null, true));
     return;
   })
   .catch(function (response) {
-    console.log(util.inspect(response, false, null, true));
-    return;
-  });
-  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
-  .then(async function (response) {
-    var times = await tempus.parseTime(response, tf2Class, pos);
-    twitch.sendMessage(target, context, `@${context.username} ${times}`);
-    return;
-  })
-  .catch(function (response) {
-    if (response.statusCode == 404) {
-      console.log(`${response.error.error}`);
-    };
     return;
   });
 }
@@ -117,10 +103,6 @@ async function rr(target, context, params) {
   })  
 };
 async function vid(target, context, params) {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !vid map`);
-    return;
-  }
   var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
@@ -205,7 +187,7 @@ async function mi(target, context, params) {
 };
 
 module.exports = {
-  knownCommands,
+  commandList,
   stime,
   dtime,
   mi,

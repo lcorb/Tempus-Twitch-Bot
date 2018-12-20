@@ -1,4 +1,8 @@
 const lineLength = 45;
+const expectedRunTypes = {
+  bonus: [`b`, `bonus`],
+  course: [`c`, `course`]
+}
 
 function timePrettifier(time) {
   var hours = Math.floor(time / 3600);
@@ -37,11 +41,14 @@ function addWhitespace(currentLength) {
 //1 is place
 //0 is map
 //This is done to use the return value for an array index
-function determineParameters(p1, p2){
-  console.log(`Determining parameters...`);
+function determineParameters(p1, p2, p3 = null, p4 = null){  
+  if (p3 !== null){
+    readParameterRunType(p3, p4);
+  }
+  number = verifyNumbers(p1, p2 , p3, p4);
   return new Promise(function (resolve, reject) {
     if (!Number(p1) && Number(p2)){
-      //Order is map place
+      //Order is map place      
       resolve(0);
     }
     else if (!Number(p2) && Number(p1)){
@@ -49,14 +56,75 @@ function determineParameters(p1, p2){
       resolve(1);
     }
     else{
-      //Order contains either 2 numbers or no numbers - could be an issue for specific maps, adding prefix will fix
+      //Order contains either 2 numbers or no numbers - could be an issue for specific maps, adding map type prefix will fix as they aren't numbers
       reject(null);
     }
   });
 }
+//Used to determine if the command included a 3rd parameter (or 4th by mistake)
+//Should be in the format of `b` or `c` followed by a natural non-zero number
+async function readParameterRunType(p1, p2 = null){
+  if (p2 === null){
+    //Match numbers and remove them
+    var type = p1.replace(/[0-9]/g,'');
+    //Match letters and remove them
+    var number = p1.replace(/[\D]/g,'');
+    type = await determineRunType(type);
+    number = await verifyNumbers(number);
+    if (type === undefined || number === undefined || type === null || number === null){
+      return null;
+    }
+    else{
+      return {type: type, number: number};
+    }
+  }
+  else{
+    if (!Number(p2)){
+      return null;
+    }
+    else{
+      return {p1, p2}
+    }
+  }
+}
+//If the number is negative flip the sign
+//If the number is 0 we don't want it
+function veryifyNumbers(){
+  var numbers = arguments;
+  return new Promise(function (resolve, reject){
+    numbers.forEach(value =>{
+      if (value < 1 && value !== 0){
+        value = Math.round(value);
+        this.value += value*2;
+      }
+      else if (value === 0){
+        this.value = null;
+      }
+      else if (!Number(value)){
+        this.value = null;
+      }
+    }, this);
+    console.log(`Here be my numbers: `+ numbers);
+    resolve(numbers);
+  })
+}
 
 function classSymbol(s){
   return s.charAt(0).toUpperCase();
+}
+
+function determineRunType(s){
+  return new Promise(function (resolve, reject){
+    if (s in expectedRunTypes.bonus){
+      resolve(`bonus`);
+    }
+    else if (s in expectedRunTypes.course){
+      resolve(`course`);
+    }
+    else{
+      reject(`null`);
+    }
+  })
 }
 
 function formatRunType(zone, index){
