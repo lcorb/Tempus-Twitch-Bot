@@ -41,11 +41,10 @@ function addWhitespace(currentLength) {
 //1 is place
 //0 is map
 //This is done to use the return value for an array index
-function determineParameters(p1, p2, p3 = null, p4 = null){  
+async function determineParameters(p1, p2, p3 = null, p4 = null){  
   if (p3 !== null){
-    readParameterRunType(p3, p4);
+    var numbers = await readParameterRunType(p3, p4);
   }
-  number = verifyNumbers(p1, p2 , p3, p4);
   return new Promise(function (resolve, reject) {
     if (!Number(p1) && Number(p2)){
       //Order is map place      

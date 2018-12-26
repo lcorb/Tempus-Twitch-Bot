@@ -33,7 +33,10 @@ function parseActivity(type, all = false) {
             response.push(`(${tf2Class}) [#${rank}] ${map} - ${player}`);
           }
           else{
-            response.push(`(${tf2Class}) ${map} - ${player}` + type === (`course_wrs`) && type !== (`map_wrs`)  ? `- C`: `- B` + `${activityObj[type][i].zone_info[`zoneindex`]}`);
+            console.log(`Player: ${player}\n${map}\n${rank}\n${tf2Class}`)
+            response.push(`(${tf2Class}) ` + 
+            (type === `map_wrs` ? `` : ((type === (`course_wrs`) ? ` Course `: ` Bonus `)) + `${activityObj[type][i].zone_info[`zoneindex`]}`)
+            + ` ${map} - ${player}`);
           }
           //FIXME
           //whiteSpace not formatting response correctly
@@ -103,15 +106,14 @@ function parseWR(mapObj, tf2Class = "both") {
 function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map"){
   position -= 1;
   //Workaround to dynamically retrieve class specific info in mapObj
-  tf2ClassEnd = tf2Class + `_runs`
-  tf2ClassSymbol = tf2Class.charAt(0);
   console.log(`Pos: ${position}\nClass: ${tf2ClassEnd}`);
-  if (tf2Class === "both_runs"){
+  if (tf2Class === "both"){
     return(`[Rank ${position}] on ${mapObj.map_info.name} -
      (D) ${mapObj.demoman_runs[position].name} - ${mapObj.soldier_runs[position].duration} | 
      (S) ${mapObj.soldier_runs[position].name} - ${mapObj.soldier_runs[position].duration}`);
   }
   else{
+    tf2ClassEnd = tf2Class + `_runs`
     return(`(${utils.classSymbol(tf2Class)}) ${mapObj[tf2ClassEnd][position].name} is ranked ${position+1} of ${mapObj[tf2ClassEnd].length} with
      ${utils.timePrettifier(mapObj[tf2ClassEnd][position].duration)} on ${mapObj.map_info.name}`);
   }

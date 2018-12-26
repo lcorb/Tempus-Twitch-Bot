@@ -30,7 +30,11 @@ const commandList = {
     authors:{
       usage: `map`
     },
-    rr
+    rr,
+    rrtt,
+    rrm,
+    rrc,
+    rrb
   };
   
   //GENERAL PARAMS//
@@ -71,37 +75,52 @@ function dtime(target, context, params) {
   runTime(target, context, params, `demoman`);
 };
 async function runTime(target, context, params, tf2Class = `both`, type = `map`, zoneIndex = 1) {
+  console.log(`Trying these params: ` + params);
   var order = await utils.determineParameters(params[0], params[1], params[2], params[3])
   .catch(e =>{
     twitch.sendMessage(target, context, `@${context.username} These arguments don't look right`);
     return;
   });
-
-  var mapName = await api.tempusSearch(params[order], "Map")
-  .catch(e => {
+  console.log(order);
+  try{
+    var mapName = await api.tempusSearch(params[order], "Map");
+  }
+  catch (e){
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
     return;
-  });
+  }
   var pos = (order === 1 ? parseInt(params[0]) : parseInt(params[1]));
   request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}bonus/1/records/list`, {limit: 100, start: pos}))
   .then(async function (response) {
-    console.log(util.inspect(response, false, null, true));
+    //console.log(util.inspect(response, false, null, true));
     return;
   })
   .catch(function (response) {
     return;
   });
 }
-async function rr(target, context, params) {
+async function rr(target, context, params, type=`map_wrs`) {
   //type should be map_tops, course_wrs, map_wrs, bonus_wrs
-  var activity = await tempus.parseActivity("map_tops");
+  var activity = await tempus.parseActivity(type);
   console.log(activity);
   //Split into multiple messages due to formatting issues - whiteSpace()
   //twitch.sendMessage(target, context, `@${context.username} Recent Records: ${activity}`);
   activity.forEach(e =>{
     twitch.sendMessage(target, context, `${e}`);
-  })  
+  })
 };
+function rrm(target, context, params){
+  rr(target, context, params);
+}
+function rrtt(target, context, params){
+  rr(target, context, params, `map_tops`);
+}
+function rrc(target, context, params){
+  rr(target, context, params, `course_wrs`);
+}
+function rrb(target, context, params){
+  rr(target, context, params, `bonus_wrs`);
+}
 async function vid(target, context, params) {
   var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
@@ -121,26 +140,12 @@ async function vid(target, context, params) {
     });
 };
 function swr(target, context, params) {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !swr map`);
-    return;
-  }
-
   wr(target, context, params, "soldier");
 };
 function dwr(target, context, params) {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !dwr map`);
-    return;
-  }
-
   wr(target, context, params, "demoman");
 };
 async function wr(target, context, params, tf2Class = "both") {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !wr map`);
-    return;
-  }
   var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
@@ -161,10 +166,6 @@ async function wr(target, context, params, tf2Class = "both") {
     });
 };
 async function mi(target, context, params) {
-  if (!params.length) {
-    twitch.sendMessage(target, context, `@${context.username} Usage: !mi map`);
-    return;
-  }
   var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
     console.log(`${e}`);
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
@@ -196,5 +197,9 @@ module.exports = {
   swr,
   dwr,
   authors,
-  rr
+  rr,
+  rrtt,
+  rrm,
+  rrb,
+  rrc
 };
