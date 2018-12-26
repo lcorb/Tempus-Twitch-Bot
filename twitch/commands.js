@@ -75,27 +75,44 @@ function dtime(target, context, params) {
   runTime(target, context, params, `demoman`);
 };
 async function runTime(target, context, params, tf2Class = `both`, type = `map`, zoneIndex = 1) {
+  var failed = false;
   console.log(`Trying these params: ` + params);
-  var order = await utils.determineParameters(params[0], params[1], params[2], params[3])
+  var runInfo = await utils.determineParameters(params[0], params[1], params[2])
   .catch(e =>{
-    twitch.sendMessage(target, context, `@${context.username} These arguments don't look right`);
+    failed = true;
+    twitch.sendMessage(target, context, `@${context.username} These arguments don't look right`);    
     return;
   });
-  console.log(order);
-  try{
-    var mapName = await api.tempusSearch(params[order], "Map");
-  }
-  catch (e){
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
+  console.log(runInfo);
+
+  var mapName = await api.tempusSearch(params[runInfo[0]], "Map")
+  .catch(e =>{
+    //If we have already failed, no need for this
+    if (!failed){
+      twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    };
     return;
-  }
-  var pos = (order === 1 ? parseInt(params[0]) : parseInt(params[1]));
-  request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}bonus/1/records/list`, {limit: 100, start: pos}))
+  });
+  var pos = (runInfo[0] === 1 ? parseInt(params[0]) : parseInt(params[1]));
+  request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}${runInfo[1]}/${runInfo[2]}/records/list`, {limit: 1, start: pos}))
   .then(async function (response) {
-    //console.log(util.inspect(response, false, null, true));
+    console.log(util.inspect(response, false, null, true));
+    if (response.soldier === null && response.demoman === null){
+      twitch.sendMessage(target, context, `@${context.username} No runs found.`);  
+    }
+    else if (response[tf2Class] === null && tf2Class !== `both`){
+      twitch.sendMessage(target, context, `@${context.username} No runs found.`);
+    }
+    else{
+      var res = await tempus.parseTime(response, tf2Class, pos, runInfo[1], mapName);
+      twitch.sendMessage(target, context, `@${context.username} ${res}`); 
+    }    
     return;
   })
   .catch(function (response) {
+    console.log(response);
+    twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);  
+    console.log(util.inspect(response, false, null, true));
     return;
   });
 }

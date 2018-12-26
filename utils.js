@@ -1,8 +1,6 @@
-const lineLength = 45;
-const expectedRunTypes = {
-  bonus: [`b`, `bonus`],
-  course: [`c`, `course`]
-}
+const lineLength = 45,
+      bonusTypes = [`b`, `bonus`],
+      courseTypes = [`c`, `course`];
 
 function timePrettifier(time) {
   var hours = Math.floor(time / 3600);
@@ -17,7 +15,7 @@ function timePrettifier(time) {
 function timeReturn(seconds, minutes, hours) {
   return ((hours == 0 ? `` : `${hours}:`) +
     (minutes == 0 && hours == 0 ? `` : `${minutes}:`) +
-    (minutes == 0 && hours == 0 ? `${seconds}s` : `${seconds}`));
+    (minutes == 0 && hours == 0 ? (seconds < 10 ? `${seconds.substr(1)}s` : `${seconds}s`) : `${seconds}`));
 }
 
 function truncate(t, d) {
@@ -41,70 +39,76 @@ function addWhitespace(currentLength) {
 //1 is place
 //0 is map
 //This is done to use the return value for an array index
-async function determineParameters(p1, p2, p3 = null, p4 = null){  
-  if (p3 !== null){
-    var numbers = await readParameterRunType(p3, p4);
-  }
-  return new Promise(function (resolve, reject) {
+async function determineParameters(p1, p2, p3 = null){
+  return new Promise(async function (resolve, reject) {
+      var results = []
     if (!Number(p1) && Number(p2)){
       //Order is map place      
-      resolve(0);
+      results.push(0);
     }
     else if (!Number(p2) && Number(p1)){
       //Order is place map
-      resolve(1);
+      results.push(1);
     }
     else{
-      //Order contains either 2 numbers or no numbers - could be an issue for specific maps, adding map type prefix will fix as they aren't numbers
+      //Order contains either 2 numbers or no numbers - could be an issue for specific maps, adding map type prefix will fix as they will not be numbers
       reject(null);
+    }
+    if (p3 !== null){
+      var type = await readParameterRunType(p3);
+      console.log(results);
+      if (type === null){
+        reject(null);
+      }
+      results = results.concat(type);
+      console.log(type)
+      console.log(results);
+      resolve(results);
+    }
+    else{
+      results.push(`map`);
+      console.log(results);
+      resolve(results);
     }
   });
 }
-//Used to determine if the command included a 3rd parameter (or 4th by mistake)
+//Used to determine if the command included a 3rd parameter
 //Should be in the format of `b` or `c` followed by a natural non-zero number
-async function readParameterRunType(p1, p2 = null){
-  if (p2 === null){
-    //Match numbers and remove them
-    var type = p1.replace(/[0-9]/g,'');
-    //Match letters and remove them
-    var number = p1.replace(/[\D]/g,'');
-    type = await determineRunType(type);
-    number = await verifyNumbers(number);
-    if (type === undefined || number === undefined || type === null || number === null){
-      return null;
-    }
-    else{
-      return {type: type, number: number};
-    }
+async function readParameterRunType(p){
+  //Match numbers and remove them
+  var type = p.replace(/[0-9]/g,'');
+  //Match letters and remove them
+  var number = p.replace(/[\D]/g,'');
+  type = await determineRunType(type);
+  number = await verifyNumber(number);
+  if (type === undefined || number === undefined || type === null || number === null){
+    return null;
   }
   else{
-    if (!Number(p2)){
-      return null;
-    }
-    else{
-      return {p1, p2}
-    }
+    return [type, number];
   }
 }
 //If the number is negative flip the sign
 //If the number is 0 we don't want it
-function veryifyNumbers(){
-  var numbers = arguments;
+function verifyNumber(value){
+  value = Number(value);
   return new Promise(function (resolve, reject){
-    numbers.forEach(value =>{
-      if (value < 1 && value !== 0){
-        value = Math.round(value);
-        this.value += value*2;
-      }
-      else if (value === 0){
-        this.value = null;
-      }
-      else if (!Number(value)){
-        this.value = null;
-      }
-    }, this);
-    console.log(`Here be my numbers: `+ numbers);
-    resolve(numbers);
+    if (value < 1 && value !== 0){
+      value = Math.round(value);
+      value += value*2;
+    }
+    else if (value === 0){
+      value = null;
+    }
+    else if (!Number(value)){
+      value = null;
+    }
+    if (value !== null){
+      resolve(value);
+    }
+    else{
+      reject(value);
+    }    
   })
 }
 
@@ -113,11 +117,14 @@ function classSymbol(s){
 }
 
 function determineRunType(s){
+  console.log(`Determining run type with: ${s}`);
   return new Promise(function (resolve, reject){
-    if (s in expectedRunTypes.bonus){
+    if (bonusTypes.indexOf(s) > -1){
+      console.log(`Found bonus`)
       resolve(`bonus`);
     }
-    else if (s in expectedRunTypes.course){
+    else if (courseTypes.indexOf(s) > -1){
+      console.log(`Found course`)
       resolve(`course`);
     }
     else{
