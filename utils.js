@@ -52,22 +52,19 @@ async function determineParameters(p1, p2, p3 = null){
     }
     else{
       //Order contains either 2 numbers or no numbers - could be an issue for specific maps, adding map type prefix will fix as they will not be numbers
-      reject(null);
+      reject(`Bad parameters`);
     }
-    if (p3 !== null){
+    if (p3 !== null && p3 !== `exact`){
       var type = await readParameterRunType(p3);
-      console.log(results);
       if (type === null){
-        reject(null);
+        reject(`Bad parameters`);
       }
       results = results.concat(type);
-      console.log(type)
-      console.log(results);
       resolve(results);
     }
     else{
       results.push(`map`);
-      console.log(results);
+      results.push(1);
       resolve(results);
     }
   });

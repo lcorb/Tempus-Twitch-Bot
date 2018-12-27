@@ -103,18 +103,21 @@ function parseWR(mapObj, tf2Class = "both") {
   return runs.join(` | `);
 }
 //zone can be map, bonus, course, trick
-function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map", map = null){
+function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map", map = null, exact = false){
   return new Promise(function(resolve, reject){
     position -= 1;
     if (tf2Class === "both"){
       resolve(`[# ${position}]` + (zone !== `map` ? `${utils.classSymbol(zone)}${mapObj.zone_info.zoneindex}` : ``) + `${map} -
-       (D) ${mapObj.results.demoman_runs[0].name} - ${mapObj.results.soldier_runs[0].duration} | 
-       (S) ${mapObj.results.soldier_runs[0].name} - ${mapObj.results.soldier_runs[0].duration}`);
+       (D) ${mapObj.results.demoman_runs[0].name} - ` +
+       + (exact === true ? mapObj.results.demoman_runs[0].duration + `s`: utils.timePrettifier(mapObj.results[tf2Class][0].duration)) + ` | 
+       (S) ${mapObj.results.soldier_runs[0].name} - ` + 
+       + (exact === true ? mapObj.results.soldier_runs[0].duration + `s`: utils.timePrettifier(mapObj.results[tf2Class][0].duration)));
     }
     else{
       resolve(`(${utils.classSymbol(tf2Class)}) ` +
-      `${mapObj.results[tf2Class][0].name} is ranked ${position+1} with
-       ${utils.timePrettifier(mapObj.results[tf2Class][0].duration)} on ${map}`+ (zone !== `map` ? ` ${utils.classSymbol(zone)}${mapObj.zone_info.zoneindex} ` : ``));
+      `${mapObj.results[tf2Class][0].name} is rank ${position+1} with `
+       + (exact === true ? mapObj.results[tf2Class][0].duration + `s` : utils.timePrettifier(mapObj.results[tf2Class][0].duration)) + ` on ${map}`
+       + (zone !== `map` ? ` ${utils.classSymbol(zone)}${mapObj.zone_info.zoneindex} ` : ``));
     }
   })
 }
