@@ -55,10 +55,10 @@ async function determineParameters(p1, p2, p3 = null){
       reject(`Bad parameters`);
     }
     if (p3 !== null && p3 !== `exact`){
-      var type = await readParameterRunType(p3);
-      if (type === null){
-        reject(`Bad parameters`);
-      }
+      var type = await readParameterRunType(p3)
+      .catch(e =>{
+        reject(e);
+      });
       results = results.concat(type);
       resolve(results);
     }

@@ -88,11 +88,6 @@ async function runTime(target, context, params, tf2Class = `both`, type = `map`,
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
     return;
   })
-  .then({
-    
-  })
-
-  
   if (!failed){
     var mapName = await api.tempusSearch(params[runInfo[0]], "Map")
     .catch(e =>{
@@ -213,6 +208,10 @@ async function mi(target, context, params) {
       return;
     });
 };
+
+function demo(){
+  
+}
 
 module.exports = {
   commandList,

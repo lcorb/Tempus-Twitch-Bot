@@ -88,16 +88,14 @@ function parseVids(mapObj) {
   return vids;
 };
 function parseWR(mapObj, tf2Class = "both") {
+  //console.log(util.inspect(mapObj, false, null, true));
   var runs = [];
-  if (tf2Class == "soldier") {
-    runs.push(`(S) ${mapObj.demoman_runs[0].name} - ${utils.timePrettifier(mapObj.soldier_runs[0].duration)}`);
-  }
-  else if (tf2Class == "demoman") {
-    runs.push(`(D) ${mapObj.demoman_runs[0].name} - ${utils.timePrettifier(mapObj.demoman_runs[0].duration)}`);
-  }
-  else {
+  if (tf2Class === `both`) {
     runs.push(`(D) ${mapObj.demoman_runs[0].name} - ${utils.timePrettifier(mapObj.demoman_runs[0].duration)}`);
     runs.push(`(S) ${mapObj.soldier_runs[0].name} - ${utils.timePrettifier(mapObj.soldier_runs[0].duration)}`);
+  }
+  else {
+    runs.push(`(S) ${mapObj[tf2Class + `_runs`][0].name} - ${utils.timePrettifier(mapObj[tf2Class + `_runs`][0].duration)}`);
   }
   console.log(runs);
   return runs.join(` | `);
