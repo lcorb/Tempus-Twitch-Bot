@@ -1,10 +1,14 @@
 const request = require('request-promise');
+      util = require('util');
 
 const tempusBase = `https://tempus.xyz/api`,
       miEnd = `/maps/name/`,
       activityEnd = `/activity`,
-      searchEnd = `/search/playersAndMaps/`;
-      zoneEnd = `/zones/typeindex/`
+      searchEnd = `/search/playersAndMaps/`,
+      zoneEnd = `/zones/typeindex/`,
+      playerIDEnd = `/players/id/`,
+      rankEnd = `/rank`,
+      statsEnd = `/stats`;
 
 
 
@@ -28,11 +32,11 @@ function tempusSearch(query, type) {
       .then(function (response) {
         if (type == "Map") {
           console.log(`Returning: ${response.maps[0].name}`);
-          response.maps > 6 ? resolve(`Too many results`) : resolve(response.maps[0].name);
+          response.maps > 6 ? reject(`Too many results`) : resolve(response.maps[0].name);
         }
         else if (type == "Player") {
-          console.log(`Returning: ${response.players[0].name}`);
-          response.maps > 50 ? resolve(`Too many results`) : resolve(response.players[0].name);
+          console.log(`Returning: ${response.players[0].id}`);
+          response.maps > 50 ? reject(`Too many results`) : resolve(response.players[0].name);
         }
       })
       .catch(function (e) {
@@ -48,5 +52,8 @@ module.exports = {
   tempusSearch,
   miEnd,
   activityEnd,
-  zoneEnd
+  zoneEnd,
+  playerIDEnd,
+  rankEnd,
+  statsEnd
 };

@@ -117,6 +117,22 @@ function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map", map = 
        + (exact === true ? mapObj.results[tf2Class][0].duration + `s` : utils.timePrettifier(mapObj.results[tf2Class][0].duration)) + ` on ${map}`
        + (zone !== `map` ? ` ${utils.classSymbol(zone)}${mapObj.zone_info.zoneindex} ` : ``));
     }
+  });
+}
+async function parseStats(mapObj){
+  console.log(util.inspect(mapObj, false, null, true));
+  return new Promise(async function (resolve, reject){
+    var name = mapObj.player_info.name,
+        sRank = mapObj.class_rank_info[`3`].rank,
+        dRank = mapObj.class_rank_info[`4`].rank,
+        overallRank = mapObj.rank_info.rank,
+        countryCode = mapObj.player_info.country_code,
+        countryRank = mapObj.country_rank_info,
+        tops = mapObj.top_stats,
+        wrs = mapObj.wr_stats,
+        pr = mapObj.pr_stats,
+        totalZones = mapObj.zone_count;
+    var evaluation = await utils.evaluateStats(sRank, dRank, overallRank, tops, wrs, pr, totalZones);
   })
 }
 
@@ -127,5 +143,6 @@ module.exports = {
   parseTiers,
   parseVids,
   parseWR,
+  parseStats,
   parseTime
 };

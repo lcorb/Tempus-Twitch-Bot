@@ -30,6 +30,18 @@ const commandList = {
     authors:{
       usage: `map`
     },
+    stats:{
+      usage: `player`
+    },
+    srank:{
+      usage: `player `
+    },
+    drank:{
+      usage: `player `
+    },
+    rank:{
+      usage: `player `
+    },
     rr,
     rrtt,
     rrm,
@@ -196,7 +208,7 @@ async function mi(target, context, params) {
   console.log(`Looking for: ${mapName}`);
   request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
     .then(async function (response) {
-      var results = await parseMap(response);
+      var results = await tempus.parseMap(response);
       twitch.sendMessage(target, context, `@${context.username} ${mapName} ${results}`);
       return;
     })
@@ -209,8 +221,22 @@ async function mi(target, context, params) {
     });
 };
 
-function demo(){
-  
+async function stats(target, context, params){
+  var playerID = await api.tempusSearch(params[0], "Player").catch(e => {
+    console.log(`${e}`);
+    twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    return;
+  });
+  //api.playerIDEnd + `${playerID}` + api.statsEnd
+  request(api.tempusGET(api.playerIDEnd + `71541` + `/stats`))
+  .then(async function(response){
+    var results = await tempus.parseStats(response);
+    twitch.sendMessage(target, context, `@${context.username} ${results}`);
+  })
+  .catch(function (response){
+    console.log(response);
+    twitch.sendMessage(target, context, `@${context.username} Fatal error`);
+  })
 }
 
 module.exports = {
@@ -227,5 +253,6 @@ module.exports = {
   rrtt,
   rrm,
   rrb,
-  rrc
+  rrc,
+  stats
 };

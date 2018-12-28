@@ -130,7 +130,7 @@ function determineRunType(s){
   })
 }
 
-function formatRunType(zone, index){
+function evaluateStats(sRank, dRank, overallRank, tops, wrs, pr, totalZones){
   
 }
 
