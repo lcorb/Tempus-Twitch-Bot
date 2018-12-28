@@ -18,22 +18,35 @@ function onMessageHandler(target, context, msg, self) {
   if (commandName in knownCommands) {
     const command = knownCommands[commandName];
     if (!params.length && knownCommands.commandList[commandName].usage){
-      console.log(`We are here`)
-      console.log(`* Failed ${commandName} command for ${context.username}`);
+      console.log(`Failed ${commandName} command for ${context.username}`);
       twitch.sendMessage(target, context, `@${context.username} Usage: ${commandPrefix}${commandName} ${knownCommands.commandList[commandName].usage}`);
     }
     else{
       command(target, context, params);
-      console.log(`* Executed ${commandName} command for ${context.username}`);
+      console.log(`Executed !${commandName} command for ${context.username}`);
     }
   }
   else {
-    console.log(`* Unknown command ${commandName} from ${context.username}`);
+    var found = false;
+    Object.entries(knownCommands.commandList).forEach(function (value) {
+      if (value[1].hasOwnProperty(`alias`)){
+        for (i = 0; i < value[1].alias.length; i++){
+          if (value[1].alias[i] === commandName){
+            found = true;
+            knownCommands[value[0]](target, context, params);
+            console.log(`Executed alias ${knownCommands[commandName]} command for ${context.username}`);
+          }
+        }
+      }
+    });
+    if (!found){
+      console.log(`Found unknown !${commandName} command for ${context.username}`);
+    }
   }
 }
 
 function onConnectedHandler(addr, port) {
-  console.log(`* *Connected to ${addr}:${port}* *`);
+  console.log(`Connected to ${addr}:${port}`);
 }
 
 function onDisconnectedHandler(reason) {

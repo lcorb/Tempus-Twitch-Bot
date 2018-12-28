@@ -13,10 +13,12 @@ const commandList = {
       usage: `(map|place) (map|place)`
     },
     mi:{
-      usage: `map`
+      usage: `map`,
+      alias: [`m`, `map`, `mapinfo`]
     },
     vid:{
-      usage: `map`
+      usage: `map`,
+      alias: [`vids`, `showcase`]
     },
     wr:{
       usage: `map`
@@ -28,10 +30,12 @@ const commandList = {
       usage: `map`
     },
     authors:{
-      usage: `map`
+      usage: `map`,
+      alias: [`creator`, `mapper`]
     },
     stats:{
-      usage: `player`
+      usage: `player`,
+      alias: [`p`, `profile`]
     },
     srank:{
       usage: `player `
