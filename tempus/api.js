@@ -36,7 +36,7 @@ function tempusSearch(query, type) {
         }
         else if (type == "Player") {
           console.log(`Returning: ${response.players[0].id}`);
-          response.maps > 50 ? reject(`Too many results`) : resolve(response.players[0].name);
+          response.maps > 50 ? reject(`Too many results`) : resolve(response.players[0].id);
         }
       })
       .catch(function (e) {

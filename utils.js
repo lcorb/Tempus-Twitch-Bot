@@ -1,6 +1,7 @@
 const lineLength = 45,
       bonusTypes = [`b`, `bonus`],
-      courseTypes = [`c`, `course`];
+      courseTypes = [`c`, `course`],
+      rankThresholds = [100, 50, 10, 5, 2, 3, 1];
 
 function timePrettifier(time) {
   var hours = Math.floor(time / 3600);
@@ -129,14 +130,80 @@ function determineRunType(s){
     }
   })
 }
-
+//Function needs to dynamically generate sentences based on stats
 function evaluateStats(sRank, dRank, overallRank, tops, wrs, pr, totalZones){
-  
+  if (!pr_stats || (sRank === 0 && dRank === 0)){
+    return `doesn't appear to have any stats on Tempus.`
+  }
+  var rankSentence = generateRankSentence(sRank, dRank, overallRank);
+  var completionSentence = generateCompletionSentence(pr, tops, wrs, totalZones);
+}
+
+function generateRankSentence(sRank, dRank, overallRank){
+  var firstFragment = ``;
+
+  if (sRank < dRank){
+    firstFragment = rankThresholdCheck(sRank, `Soldier`);
+  }
+  else if (dRank < sRank){
+    firstFragment = rankThresholdCheck(dRank, `Demoman`);
+  }
+  else if (sRank === dRank){
+    firstFragment = rankThresholdCheck(sRank, `Both`);
+  }
+  if (overallRank <= rankThresholds[0]){
+    var secondFragment = `is rank ${overallRank} overall`;
+  }
+  return `${firstFragment} and ${secondFragment}`;
+}
+
+function rankThresholdCheck(number, tf2Class = `Soldier`){
+  //Above rank 100
+  if (number >= rankThresholds[0]){
+    return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`);
+  }
+  //Below rank 100 and above 50
+  else if (number <= rankThresholds[0] > rankThresholds[1]){
+    return `holds a respectable rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`);
+  }
+  //Below rank 50 and above 10
+  else if (number <= rankThresholds[1] > rankThresholds[2]){
+    return `tops out at an impressive rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`);
+  }
+  //Below rank 10 and above 5
+  else if (number <= rankThresholds[2] > rankThresholds[3]){
+    return `is one of the best at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`);
+  }
+  //Below rank 5 and above 3
+  else if (number <= rankThresholds[3] > rankThresholds[4]){
+    return `is unmatched at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`);
+  }
+  //Rank 3
+  else if (number === rankThresholds[4]){
+    return `is the 3rd highest ranked ` + (tf2Class === `Both` ? `for both classes`: ` ${tf2Class}`) + ` on Tempus`;
+  }
+  //Rank 2
+  else if (number === rankThresholds[5]){
+    return `is the 2nd highest ranked ` + (tf2Class === `Both` ? `for both classes`: ` ${tf2Class}`) + `on Tempus`;
+  }
+  //Rank 1
+  else if (number === rankThresholds[6]){
+    return `is the highest ranked ` + (tf2Class === `Both` ? `for both classes`: ` ${tf2Class}`) + `on Tempus`;
+  }
+}
+
+function generateCompletionSentence(pr, tt, wr, totalZones){
+  var firstFragment = ``,
+      secondFragment = ``,
+      thirdFragment = ``;
+      prPercentage = (pr.map.count / (totalZones.maps * 2)) * 100
+      
 }
 
 module.exports = {
   timePrettifier,
   addWhitespace,
   determineParameters,
-  classSymbol
+  classSymbol,
+  evaluateStats
 };

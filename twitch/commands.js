@@ -232,7 +232,7 @@ async function stats(target, context, params){
     return;
   });
   //api.playerIDEnd + `${playerID}` + api.statsEnd
-  request(api.tempusGET(api.playerIDEnd + `71541` + `/stats`))
+  request(api.tempusGET(api.playerIDEnd + playerID + `/stats`))
   .then(async function(response){
     var results = await tempus.parseStats(response);
     twitch.sendMessage(target, context, `@${context.username} ${results}`);
