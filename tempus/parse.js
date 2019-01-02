@@ -125,6 +125,8 @@ async function parseStats(mapObj){
     var name = mapObj.player_info.name,
         sRank = mapObj.class_rank_info[`3`].rank,
         dRank = mapObj.class_rank_info[`4`].rank,
+        sPoints = mapObj.class_rank_info[`3`].points,
+        dPoints = mapObj.class_rank_info[`4`].points,
         overallRank = mapObj.rank_info.rank,
         countryCode = mapObj.player_info.country_code,
         countryRank = mapObj.country_rank_info,
@@ -132,7 +134,7 @@ async function parseStats(mapObj){
         wrs = mapObj.wr_stats,
         pr = mapObj.pr_stats,
         totalZones = mapObj.zone_count;
-    var evaluation = await utils.evaluateStats(sRank, dRank, overallRank, tops, wrs, pr, totalZones);
+    var evaluation = await utils.evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones);
   })
 }
 

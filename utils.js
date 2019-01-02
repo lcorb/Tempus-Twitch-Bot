@@ -1,7 +1,8 @@
 const lineLength = 45,
       bonusTypes = [`b`, `bonus`],
       courseTypes = [`c`, `course`],
-      rankThresholds = [100, 50, 10, 5, 2, 3, 1];
+      rankThresholds = [100, 50, 10, 5, 2, 3, 1],
+      completionThresholds = [20, 50, 70, 90];
 
 function timePrettifier(time) {
   var hours = Math.floor(time / 3600);
@@ -115,14 +116,11 @@ function classSymbol(s){
 }
 
 function determineRunType(s){
-  console.log(`Determining run type with: ${s}`);
   return new Promise(function (resolve, reject){
     if (bonusTypes.indexOf(s) > -1){
-      console.log(`Found bonus`)
       resolve(`bonus`);
     }
     else if (courseTypes.indexOf(s) > -1){
-      console.log(`Found course`)
       resolve(`course`);
     }
     else{
@@ -131,11 +129,11 @@ function determineRunType(s){
   })
 }
 //Function needs to dynamically generate sentences based on stats
-function evaluateStats(sRank, dRank, overallRank, tops, wrs, pr, totalZones){
+function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones){
   if (!pr_stats || (sRank === 0 && dRank === 0)){
     return `doesn't appear to have any stats on Tempus.`
   }
-  var rankSentence = generateRankSentence(sRank, dRank, overallRank);
+  var rankSentence = generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints);
   var completionSentence = generateCompletionSentence(pr, tops, wrs, totalZones);
 }
 
@@ -143,52 +141,53 @@ function generateRankSentence(sRank, dRank, overallRank){
   var firstFragment = ``;
 
   if (sRank < dRank){
-    firstFragment = rankThresholdCheck(sRank, `Soldier`);
+    firstFragment = rankThresholdCheck(sRank, `Soldier`, sPoints);
   }
   else if (dRank < sRank){
-    firstFragment = rankThresholdCheck(dRank, `Demoman`);
+    firstFragment = rankThresholdCheck(dRank, `Demoman`, dPoints);
   }
   else if (sRank === dRank){
-    firstFragment = rankThresholdCheck(sRank, `Both`);
+    firstFragment = rankThresholdCheck(sRank, `Both`, sPoints, dPoints);
   }
   if (overallRank <= rankThresholds[0]){
     var secondFragment = `is rank ${overallRank} overall`;
   }
-  return `${firstFragment} and ${secondFragment}`;
+  return `${firstFragment} ` + (secondFragment ? `and ${secondFragment}.` : `.`);
 }
 
-function rankThresholdCheck(number, tf2Class = `Soldier`){
+function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 0){
+  var pointFragment = (sPoints !== 0 ? (dPoints !== 0 ? `with ${sPoints} & ${dPoints} respectively.` : `with ${dPoints} points.`) : `with ${sPoints} points.`);
   //Above rank 100
   if (number >= rankThresholds[0]){
-    return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`);
+    return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Below rank 100 and above 50
   else if (number <= rankThresholds[0] > rankThresholds[1]){
-    return `holds a respectable rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`);
+    return `holds a respectable rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Below rank 50 and above 10
   else if (number <= rankThresholds[1] > rankThresholds[2]){
-    return `tops out at an impressive rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`);
+    return `tops out at an impressive rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Below rank 10 and above 5
   else if (number <= rankThresholds[2] > rankThresholds[3]){
-    return `is one of the best at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`);
+    return `is one of the best at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Below rank 5 and above 3
   else if (number <= rankThresholds[3] > rankThresholds[4]){
-    return `is unmatched at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`);
+    return `is unmatched at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}` ) + ` ${pointFragment}`;
   }
   //Rank 3
   else if (number === rankThresholds[4]){
-    return `is the 3rd highest ranked ` + (tf2Class === `Both` ? `for both classes`: ` ${tf2Class}`) + ` on Tempus`;
+    return `is the 3rd highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Rank 2
   else if (number === rankThresholds[5]){
-    return `is the 2nd highest ranked ` + (tf2Class === `Both` ? `for both classes`: ` ${tf2Class}`) + `on Tempus`;
+    return `is the 2nd highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Rank 1
   else if (number === rankThresholds[6]){
-    return `is the highest ranked ` + (tf2Class === `Both` ? `for both classes`: ` ${tf2Class}`) + `on Tempus`;
+    return `is the highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
   }
 }
 
@@ -197,7 +196,27 @@ function generateCompletionSentence(pr, tt, wr, totalZones){
       secondFragment = ``,
       thirdFragment = ``;
       prPercentage = (pr.map.count / (totalZones.maps * 2)) * 100
-      
+
+    firstFragment = completion(pr.map.count, totalZones.maps)
+}
+//[20, 50, 70, 90]
+function completionThresholdCheck(count, total){
+  var percentage = (count / (total * 2)) * 100;
+  if (percentage <= completionThresholds[0]){
+    return `has completed ${percentage}% [${count}] of maps`
+  }
+  else if (percentage <= completionThresholds[1] && percentage > completionThresholds[0]){
+    return `has completed ${percentage}% [${count}] of maps`
+  }
+  else if (percentage <= completionThresholds[2] && percentage > completionThresholds[1]){
+    return `has completed ${percentage}% [${count}] of maps`
+  }
+  else if (percentage <= completionThresholds[3] && percentage > completionThresholds[2]){
+    return `has completed ${percentage}% [${count}] of maps`
+  }
+  else if (percentage >= completionThresholds[3]){
+    return `has completed ${percentage}% [${count}] of maps`
+  }
 }
 
 module.exports = {
