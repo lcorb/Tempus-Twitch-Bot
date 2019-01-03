@@ -76,15 +76,18 @@ function parseTiers(mapObj) {
   var tiers = [];
   tiers.push(`(S) Tier ` + mapObj.tier_info["demoman"]);
   tiers.push(`(D) Tier ` + mapObj.tier_info["soldier"]);
-  console.log(`Tiers: ${tiers}`);
   return tiers;
 };
 function parseVids(mapObj) {
   var vids = [];
-  vids.push(`youtu.be/` + mapObj.videos["soldier"]);
-  vids.push(utils.addWhitespace(vids[0].length));
-  vids.push(`youtu.be/` + mapObj.videos["demoman"]);
-  console.log(`Vids: ${vids}`);
+  if (mapObj.videos["soldier"] || mapObj.videos["demoman"]){
+    mapObj.videos["soldier"] ? vids.push(`Soldier: youtu.be/` + mapObj.videos["soldier"]): vids.push(``);
+    mapObj.videos["demoman"] ? vids.push(`Demoman: youtu.be/` + mapObj.videos["demoman"]): vids.push(``);
+    vids.join(` `);
+  }
+  else{
+    return `No videos found.`
+  }  
   return vids;
 };
 function parseWR(mapObj, tf2Class = "both") {
@@ -97,7 +100,6 @@ function parseWR(mapObj, tf2Class = "both") {
   else {
     runs.push(`(S) ${mapObj[tf2Class + `_runs`][0].name} - ${utils.timePrettifier(mapObj[tf2Class + `_runs`][0].duration)}`);
   }
-  console.log(runs);
   return runs.join(` | `);
 }
 //zone can be map, bonus, course, trick

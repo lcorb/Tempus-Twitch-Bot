@@ -1,13 +1,21 @@
 const twitch = require("./message.js"),
       knownCommands = require("./commands.js"),
       commandPrefix = '!';
+      
 
-function onMessageHandler(target, context, msg, self) {
+function onMessageHandler(target, context, msg, self){
   if (self) {
     return;
   }
+  /*var userList = request({
+    baseUrl: `http://tmi.twitch.tv/group/user/${}/chatters`,
+    headers: {
+    'Accept': 'application/json'},
+    method: 'GET',
+    json: true,
+  });*/
   //Not a command
-  if (msg.substr(0, 1) !== commandPrefix) {
+  if (msg.substr(0, 1) !== commandPrefix){
     console.log(`[${target} (${context['message-type']})] ${context.username}: ${msg}`);
     return;
   }
@@ -15,7 +23,7 @@ function onMessageHandler(target, context, msg, self) {
   const parse = msg.slice(1).split(' '),
         commandName = parse[0],
         params = parse.splice(1);
-  if (commandName in knownCommands) {
+  if (commandName in knownCommands){
     const command = knownCommands[commandName];
     if (!params.length && knownCommands.commandList[commandName].usage){
       console.log(`Failed ${commandName} command for ${context.username}`);
@@ -23,12 +31,12 @@ function onMessageHandler(target, context, msg, self) {
     }
     else{
       command(target, context, params);
-      console.log(`Executed !${commandName} command for ${context.username}`);
+      console.log(`Executed ${commandPrefix}${commandName} command for ${context.username}`);
     }
   }
   else {
     var found = false;
-    Object.entries(knownCommands.commandList).forEach(function (value) {
+    Object.entries(knownCommands.commandList).forEach(function (value){
       if (value[1].hasOwnProperty(`alias`)){
         for (i = 0; i < value[1].alias.length; i++){
           if (value[1].alias[i] === commandName){
@@ -45,11 +53,11 @@ function onMessageHandler(target, context, msg, self) {
   }
 }
 
-function onConnectedHandler(addr, port) {
+function onConnectedHandler(addr, port){
   console.log(`Connected to ${addr}:${port}`);
 }
 
-function onDisconnectedHandler(reason) {
+function onDisconnectedHandler(reason){
   console.log(`Disconnected: ${reason}`);
   process.exit(1);
 }

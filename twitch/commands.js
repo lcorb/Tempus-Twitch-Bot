@@ -38,19 +38,29 @@ const commandList = {
       alias: [`p`, `profile`]
     },
     srank:{
-      usage: `player `
+      usage: `player`
     },
     drank:{
-      usage: `player `
+      usage: `player`
     },
     rank:{
-      usage: `player `
+      usage: `player`
     },
-    rr,
-    rrtt,
-    rrm,
-    rrc,
-    rrb
+    rr:{
+      mod: true
+    },
+    rrtt:{
+      mod: true
+    },
+    rrm:{
+      mod: true
+    },
+    rrc:{
+      mod: true
+    },
+    rrb:{
+      mod: true
+    }
   };
   
   //GENERAL PARAMS//
@@ -168,7 +178,7 @@ async function vid(target, context, params) {
   request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
     .then(async function (response) {
       vids = await tempus.parseVids(response);
-      twitch.sendMessage(target, context, `@${context.username} Soldier: ${vids[0]} Demoman: ${vids[1]}`);
+      twitch.sendMessage(target, context, `@${context.username} ${vids}`);
     })
     .catch(function (response) {
       if (response.statusCode == 404) {
