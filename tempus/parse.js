@@ -131,7 +131,6 @@ async function parseStats(mapObj){
         dPoints = mapObj.class_rank_info[`4`].points,
         overallRank = mapObj.rank_info.rank,
         countryCode = mapObj.player_info.country_code,
-        countryRank = mapObj.country_rank_info,
         tops = mapObj.top_stats,
         wrs = mapObj.wr_stats,
         pr = mapObj.pr_stats,

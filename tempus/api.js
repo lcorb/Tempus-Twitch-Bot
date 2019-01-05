@@ -30,13 +30,15 @@ function tempusSearch(query, type) {
   return new Promise(function (resolve, reject) {
     request(tempusGET(searchEnd + query))
       .then(function (response) {
-        if (type == "Map") {
-          console.log(`Returning: ${response.maps[0].name}`);
-          response.maps > 6 ? reject(`Too many results`) : resolve(response.maps[0].name);
+        if (type === "Map") {
+          //console.log(`Returning: ${response.maps[0].name}`);
+          //console.log(util.inspect(response, false, null, true))
+          response.maps.length > 15 ? reject(`Too many results`) : resolve(response.maps[0].name);
         }
-        else if (type == "Player") {
-          console.log(`Returning: ${response.players[0].id}`);
-          response.maps > 50 ? reject(`Too many results`) : resolve(response.players[0].id);
+        else if (type === "Player") {
+          //console.log(util.inspect(response, false, null, true))
+          //console.log(`Returning: ${response.players[0].id}`);
+          response.players.length > 50 ? reject(`Too many results`) : resolve(response.players[0].id);
         }
       })
       .catch(function (e) {

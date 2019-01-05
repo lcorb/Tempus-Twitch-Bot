@@ -54,7 +54,7 @@ async function determineParameters(p1, p2, p3 = null){
     }
     else{
       //Order contains either 2 numbers or no numbers - could be an issue for specific maps, adding map type prefix will fix as they will not be numbers
-      reject(`Bad parameters`);
+      reject(`Bad parameters.`);
     }
     if (p3 !== null && p3 !== `exact`){
       var type = await readParameterRunType(p3)
@@ -130,14 +130,17 @@ function determineRunType(s){
 }
 //Function needs to dynamically generate sentences based on stats
 function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones){
-  if (!pr_stats || (sRank === 0 && dRank === 0)){
+  if (!pr || (sRank === 0 && dRank === 0)){
     return `doesn't appear to have any stats on Tempus.`
   }
-  var rankSentence = generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints);
-  var completionSentence = generateCompletionSentence(pr, tops, wrs, totalZones);
+  else{
+    var rankSentence = generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints);
+    var completionSentence = generateCompletionSentence(pr.map.count, tops, wrs, totalZones.maps);
+    return `${rankSentence} ${completionSentence}`;
+  }
 }
 
-function generateRankSentence(sRank, dRank, overallRank){
+function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
   var firstFragment = ``;
 
   if (sRank < dRank){
@@ -159,7 +162,7 @@ function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 
   var pointFragment = (sPoints !== 0 ? (dPoints !== 0 ? `with ${sPoints} & ${dPoints} respectively.` : `with ${dPoints} points.`) : `with ${sPoints} points.`);
   //Above rank 100
   if (number >= rankThresholds[0]){
-    return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`) + ` ${pointFragment}`;
+    return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`) + ` ${pointFragment}.`;
   }
   //Below rank 100 and above 50
   else if (number <= rankThresholds[0] > rankThresholds[1]){
@@ -192,31 +195,66 @@ function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 
 }
 
 function generateCompletionSentence(pr, tt, wr, totalZones){
-  var firstFragment = ``,
-      secondFragment = ``,
-      thirdFragment = ``;
-      prPercentage = (pr.map.count / (totalZones.maps * 2)) * 100
+  var firstFragment = completionThresholdCheck(pr, totalZones),
+      secondFragment = generateTTSentence(tt, wr);
+  return `${firstFragment}` + secondFragment === `` ? `.` : ` and ${secondFragment}`;
 
-    firstFragment = completion(pr.map.count, totalZones.maps)
 }
 //[20, 50, 70, 90]
 function completionThresholdCheck(count, total){
   var percentage = (count / (total * 2)) * 100;
   if (percentage <= completionThresholds[0]){
-    return `has completed ${percentage}% [${count}] of maps`
+    return `have completed ${percentage}% [${count}] of maps`;
   }
   else if (percentage <= completionThresholds[1] && percentage > completionThresholds[0]){
-    return `has completed ${percentage}% [${count}] of maps`
+    return `have completed ${percentage}% [${count}] of maps`;
   }
   else if (percentage <= completionThresholds[2] && percentage > completionThresholds[1]){
-    return `has completed ${percentage}% [${count}] of maps`
+    return `have completed ${percentage}% [${count}] of maps`;
   }
   else if (percentage <= completionThresholds[3] && percentage > completionThresholds[2]){
-    return `has completed ${percentage}% [${count}] of maps`
+    return `have completed ${percentage}% [${count}] of maps`;
   }
   else if (percentage >= completionThresholds[3]){
-    return `has completed ${percentage}% [${count}] of maps`
+    return `have completed ${percentage}% [${count}] of maps`;
   }
+}
+
+function generateTTSentence(tt, wr){
+  var ttFragment = ``,
+      wrFragment = ``;
+
+  if (tt.map.count === 0){
+    ttFragment = ``;
+  }
+  else if (tt.map.count > 0 && tt.map.count <= 10){
+    ttFragment = `have ${tt.map.count} map TT` + tt.map.count === 1 ? ``: `s`;
+  }
+  else if (tt.map.count > 10 && tt.map.count <= 50){
+    ttFragment = `have a hefty ${tt.map.count} map TTs`;
+  }
+  else if (tt.map.count > 50 && tt.map.count <= 100){
+    ttFragment = `have a beefy ${tt.map.count} map TTs`;
+  }
+  else if (tt.map.count > 100 && tt.map.count <= 250){
+    ttFragment = `have a staggering ${tt.map.count} map TTs`;
+  }
+  else if (tt.map.count > 200){
+    ttFragment = `have a monumental ${tt.map.count} map TTs`;
+  }
+
+  if (!wr.map && !wr.course && !wr.bonus){
+    wrFragment = ``;
+  }
+  else{
+    ttFragment = `along with ` + (wr.map ? `${wr.map.count} map` : ``) +
+    (wr.course && wr.bonus ? `, ` : (wr.course || wr.bonus ? `& `: ``)) + 
+    (wr.course ? `${wr.course.count} course` : ``) + 
+    (wr.bonus ? `& ` : ``) + 
+    (wr.bonus ? `${wr.bonus.count} bonus` : ``) + 
+    `.`;
+  }
+  return `${ttFragment}${wrFragment}`;
 }
 
 module.exports = {

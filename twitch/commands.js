@@ -236,6 +236,8 @@ async function mi(target, context, params) {
 };
 
 async function stats(target, context, params){
+  //twitch.sendMessage(target, context, `prettyDamnHeckinLongNameHeck [AUS] is the 3rd highest ranked player for both classes with 12345 & 12345 points respectively. `
+  //+ `They have completed 100% [1000] of maps and have a monumental 1000 map TTs along with 100 bonus, 300 course & 500 map WRs.`);
   var playerID = await api.tempusSearch(params[0], "Player").catch(e => {
     console.log(`${e}`);
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
