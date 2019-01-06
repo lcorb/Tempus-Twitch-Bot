@@ -129,15 +129,17 @@ function determineRunType(s){
   })
 }
 //Function needs to dynamically generate sentences based on stats
-function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones){
-  if (!pr || (sRank === 0 && dRank === 0)){
-    return `doesn't appear to have any stats on Tempus.`
-  }
-  else{
-    var rankSentence = generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints);
-    var completionSentence = generateCompletionSentence(pr.map.count, tops, wrs, totalZones.maps);
-    return `${rankSentence} ${completionSentence}`;
-  }
+async function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones){
+  return new Promise(function (resolve, reject){
+    if (!Boolean(pr) || (sRank === 0 && dRank === 0)){
+      reject(`doesn't appear to have any stats on Tempus.`);
+    }
+    else{
+      var rankSentence = await generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints);
+      var completionSentence = await generateCompletionSentence(pr.map.count, tops, wrs, totalZones.map.count);
+      resolve(`${rankSentence} ${completionSentence}`);
+    }
+  })
 }
 
 function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
@@ -155,7 +157,7 @@ function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
   if (overallRank <= rankThresholds[0]){
     var secondFragment = `is rank ${overallRank} overall`;
   }
-  return `${firstFragment} ` + (secondFragment ? `and ${secondFragment}.` : `.`);
+  return `${firstFragment} ` + (Boolean(secondFragment) ? `and ${secondFragment}.` : `.`);
 }
 
 function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 0){
@@ -197,12 +199,15 @@ function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 
 function generateCompletionSentence(pr, tt, wr, totalZones){
   var firstFragment = completionThresholdCheck(pr, totalZones),
       secondFragment = generateTTSentence(tt, wr);
-  return `${firstFragment}` + secondFragment === `` ? `.` : ` and ${secondFragment}`;
+  console.log(`${firstFragment}` + secondFragment === `` ? `.` : ` ${secondFragment}`);
+  return `${firstFragment}` + secondFragment === `` ? `.` : ` ${secondFragment}`;
 
 }
 //[20, 50, 70, 90]
 function completionThresholdCheck(count, total){
+  console.log(`Were checkin completion`)
   var percentage = (count / (total * 2)) * 100;
+  console.log((count / (total * 2)) * 100);
   if (percentage <= completionThresholds[0]){
     return `have completed ${percentage}% [${count}] of maps`;
   }
@@ -222,9 +227,13 @@ function completionThresholdCheck(count, total){
 
 function generateTTSentence(tt, wr){
   var ttFragment = ``,
-      wrFragment = ``;
+      wrFragment = ``,
+      ttBool = Boolean(tt),
+      wrbBool = Boolean(wr.bonus),
+      wrcBool = Boolean(wr.course),
+      wrBool = Boolean(wr.map);
 
-  if (tt.map.count === 0){
+  if (!ttBool || tt.map === undefined){
     ttFragment = ``;
   }
   else if (tt.map.count > 0 && tt.map.count <= 10){
@@ -243,16 +252,19 @@ function generateTTSentence(tt, wr){
     ttFragment = `have a monumental ${tt.map.count} map TTs`;
   }
 
-  if (!wr.map && !wr.course && !wr.bonus){
+  if (!wrBool && !wrcBool && !wrbBool){
     wrFragment = ``;
   }
   else{
-    ttFragment = `along with ` + (wr.map ? `${wr.map.count} map` : ``) +
-    (wr.course && wr.bonus ? `, ` : (wr.course || wr.bonus ? `& `: ``)) + 
-    (wr.course ? `${wr.course.count} course` : ``) + 
-    (wr.bonus ? `& ` : ``) + 
-    (wr.bonus ? `${wr.bonus.count} bonus` : ``) + 
-    `.`;
+    ttFragment = `along with ` + (wrBool ? `${wr.map.count} map` : ``) +
+    (wrcBool && wrbBool ? `, ` : (wrcBool || wrbBool ? ` & `: ``)) + 
+    (wrcBool ? `${wr.course.count} course` : ``) + 
+    (wrbBool ? ` & ` : ``) +  
+    (wrbBool ? `${wr.bonus.count} bonus` : ``) + 
+    `WR` + wrBool ? (wr.map.count > 1 ? `s` : 
+           (wrcBool ? (wr.course.count > 1 ? `s` : 
+           (wrbBool ? (wr.bonus.count > 1 ? `s` : ``) : ``)): ``)) : ``
+    + `.`;
   }
   return `${ttFragment}${wrFragment}`;
 }

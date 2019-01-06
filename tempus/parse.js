@@ -135,7 +135,13 @@ async function parseStats(mapObj){
         wrs = mapObj.wr_stats,
         pr = mapObj.pr_stats,
         totalZones = mapObj.zone_count;
-    var evaluation = await utils.evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones);
+    var results = await utils.evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones)
+    .catch(e =>{
+      reject(e);
+    })
+    .then(r =>{
+      resolve(results);
+    });
   })
 }
 
