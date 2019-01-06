@@ -1,8 +1,8 @@
 const lineLength = 45,
       bonusTypes = [`b`, `bonus`],
       courseTypes = [`c`, `course`],
-      rankThresholds = [100, 50, 10, 5, 2, 3, 1],
-      completionThresholds = [20, 50, 70, 90];
+      rankThresholds = [100, 50, 10, 5, 2, 3, 1];
+      //completionThresholds = [20, 50, 70, 90];
 
 function timePrettifier(time) {
   var hours = Math.floor(time / 3600);
@@ -130,21 +130,33 @@ function determineRunType(s){
 }
 //Function needs to dynamically generate sentences based on stats
 async function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones){
-  return new Promise(function (resolve, reject){
+  return new Promise(async function (resolve, reject){
     if (!Boolean(pr) || (sRank === 0 && dRank === 0)){
       reject(`doesn't appear to have any stats on Tempus.`);
     }
     else{
       var rankSentence = await generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints);
       var completionSentence = await generateCompletionSentence(pr.map.count, tops, wrs, totalZones.map.count);
+      console.log(`${rankSentence} ${completionSentence}`)
       resolve(`${rankSentence} ${completionSentence}`);
     }
   })
 }
 
+function formatPoints(points){  
+  points = truncate(points, 0).toString();  
+  points = points.replace(/(.{3})/g,"$1,");
+  if (points.charAt(points.length-1) === `,`){
+    points = points.slice(0, points.length-1);
+  }
+  return points;
+}
+
 function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
   var firstFragment = ``;
-
+  sPoints = formatPoints(sPoints);
+  dPoints = formatPoints(dPoints);
+  console.log(sPoints, dPoints)
   if (sRank < dRank){
     firstFragment = rankThresholdCheck(sRank, `Soldier`, sPoints);
   }
@@ -161,7 +173,7 @@ function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
 }
 
 function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 0){
-  var pointFragment = (sPoints !== 0 ? (dPoints !== 0 ? `with ${sPoints} & ${dPoints} respectively.` : `with ${dPoints} points.`) : `with ${sPoints} points.`);
+  var pointFragment = (sPoints !== 0 ? (dPoints !== 0 ? `with ${sPoints} & ${dPoints} respectively` : `with ${sPoints} points`) : `with ${dPoints} points`);
   //Above rank 100
   if (number >= rankThresholds[0]){
     return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`) + ` ${pointFragment}.`;
@@ -197,32 +209,17 @@ function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 
 }
 
 function generateCompletionSentence(pr, tt, wr, totalZones){
-  var firstFragment = completionThresholdCheck(pr, totalZones),
-      secondFragment = generateTTSentence(tt, wr);
-  console.log(`${firstFragment}` + secondFragment === `` ? `.` : ` ${secondFragment}`);
-  return `${firstFragment}` + secondFragment === `` ? `.` : ` ${secondFragment}`;
-
+  return new Promise(function (resolve, reject){
+    var firstFragment = completionThresholdCheck(pr, totalZones),
+        secondFragment = generateTTSentence(tt, wr);
+        resolve(`${firstFragment}` + secondFragment === `` ? `.` : ` ${secondFragment}`);
+  });
 }
 //[20, 50, 70, 90]
 function completionThresholdCheck(count, total){
   console.log(`Were checkin completion`)
-  var percentage = (count / (total * 2)) * 100;
-  console.log((count / (total * 2)) * 100);
-  if (percentage <= completionThresholds[0]){
-    return `have completed ${percentage}% [${count}] of maps`;
-  }
-  else if (percentage <= completionThresholds[1] && percentage > completionThresholds[0]){
-    return `have completed ${percentage}% [${count}] of maps`;
-  }
-  else if (percentage <= completionThresholds[2] && percentage > completionThresholds[1]){
-    return `have completed ${percentage}% [${count}] of maps`;
-  }
-  else if (percentage <= completionThresholds[3] && percentage > completionThresholds[2]){
-    return `have completed ${percentage}% [${count}] of maps`;
-  }
-  else if (percentage >= completionThresholds[3]){
-    return `have completed ${percentage}% [${count}] of maps`;
-  }
+  var percentage = truncate((count / (total * 2)) * 100, 2);
+  return `have completed ${percentage}% [${count}] of maps`;
 }
 
 function generateTTSentence(tt, wr){
@@ -232,6 +229,8 @@ function generateTTSentence(tt, wr){
       wrbBool = Boolean(wr.bonus),
       wrcBool = Boolean(wr.course),
       wrBool = Boolean(wr.map);
+
+  console.log(ttBool, wrbBool, wrcBool, wrBool);
 
   if (!ttBool || tt.map === undefined){
     ttFragment = ``;
