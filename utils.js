@@ -143,25 +143,30 @@ async function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, 
   })
 }
 
+function stringReverse(s){
+  s = s.split(``)
+  s.reverse();
+  return s.join(``);
+}
+
 function formatPoints(points){  
-  points = truncate(points, 0).toString();  
-  points = points.replace(/(.{3})/g,"$1,");
-  if (points.charAt(points.length-1) === `,`){
+  points = truncate(points, 0).toString();
+  points = stringReverse(points);
+  //Need to reverse because of dodgy regex
+  points = points.replace(/(.{3})/g, "$1 ");
+  if (points.charAt(points.length-1) === ` `){
     points = points.slice(0, points.length-1);
   }
-  return points;
+  return stringReverse(points);
 }
 
 function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
   var firstFragment = ``;
-  sPoints = formatPoints(sPoints);
-  dPoints = formatPoints(dPoints);
-  console.log(sPoints, dPoints)
   if (sRank < dRank){
-    firstFragment = rankThresholdCheck(sRank, `Soldier`, sPoints);
+    firstFragment = rankThresholdCheck(sRank, `Soldier`, sPoints, dPoints);
   }
   else if (dRank < sRank){
-    firstFragment = rankThresholdCheck(dRank, `Demoman`, dPoints);
+    firstFragment = rankThresholdCheck(dRank, `Demoman`, sPoints, dPoints);
   }
   else if (sRank === dRank){
     firstFragment = rankThresholdCheck(sRank, `Both`, sPoints, dPoints);
@@ -169,38 +174,43 @@ function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
   if (overallRank <= rankThresholds[0]){
     var secondFragment = `is rank ${overallRank} overall`;
   }
-  return `${firstFragment} ` + (Boolean(secondFragment) ? `and ${secondFragment}.` : `.`);
+  return `${firstFragment}` + (Boolean(secondFragment) ? ` and ${secondFragment}.` : `.`);
 }
 
 function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 0){
-  var pointFragment = (sPoints !== 0 ? (dPoints !== 0 ? `with ${sPoints} & ${dPoints} respectively` : `with ${sPoints} points`) : `with ${dPoints} points`);
+  sPoints = formatPoints(sPoints);
+  dPoints = formatPoints(dPoints);
+  console.log(sPoints, dPoints)
+  console.log(number)
+  var pointFragment = (tf2Class === `Soldier` ? (tf2Class === `Demoman` ? `with ${sPoints} & ${dPoints} respectively` : `with ${sPoints} points`) : `with ${dPoints} points`);
+  console.log(pointFragment);
   //Above rank 100
   if (number >= rankThresholds[0]){
-    return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`) + ` ${pointFragment}.`;
+    return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Below rank 100 and above 50
-  else if (number <= rankThresholds[0] > rankThresholds[1]){
+  else if (number <= rankThresholds[0] && number > rankThresholds[1]){
     return `holds a respectable rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Below rank 50 and above 10
-  else if (number <= rankThresholds[1] > rankThresholds[2]){
+  else if (number <= rankThresholds[1] && number > rankThresholds[2]){
     return `tops out at an impressive rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Below rank 10 and above 5
-  else if (number <= rankThresholds[2] > rankThresholds[3]){
+  else if (number <= rankThresholds[2] && number > rankThresholds[3]){
     return `is one of the best at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Below rank 5 and above 3
-  else if (number <= rankThresholds[3] > rankThresholds[4]){
+  else if (number <= rankThresholds[3] && number > rankThresholds[4]){
     return `is unmatched at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}` ) + ` ${pointFragment}`;
   }
   //Rank 3
   else if (number === rankThresholds[4]){
-    return `is the 3rd highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
+    return `is the third highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Rank 2
   else if (number === rankThresholds[5]){
-    return `is the 2nd highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
+    return `is the second highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
   }
   //Rank 1
   else if (number === rankThresholds[6]){
@@ -212,28 +222,39 @@ function generateCompletionSentence(pr, tt, wr, totalZones){
   return new Promise(function (resolve, reject){
     var firstFragment = completionThresholdCheck(pr, totalZones),
         secondFragment = generateTTSentence(tt, wr);
-        resolve(`${firstFragment}` + secondFragment === `` ? `.` : ` ${secondFragment}`);
+        console.log(secondFragment === ``);
+        resolve(`${firstFragment}` + (secondFragment === `` ? `.` : ` ${secondFragment}`));
   });
 }
 //[20, 50, 70, 90]
 function completionThresholdCheck(count, total){
-  console.log(`Were checkin completion`)
   var percentage = truncate((count / (total * 2)) * 100, 2);
-  return `have completed ${percentage}% [${count}] of maps`;
+  return `They have ${percentage}% [${count}] overall completions`;
 }
 
 function generateTTSentence(tt, wr){
   var ttFragment = ``,
       wrFragment = ``,
-      ttBool = Boolean(tt),
+      ttmBool = Boolean(tt.map),
+      ttcBool = Boolean(tt.course),
+      ttbBool = Boolean(tt.bonus),
       wrbBool = Boolean(wr.bonus),
       wrcBool = Boolean(wr.course),
       wrBool = Boolean(wr.map);
 
-  console.log(ttBool, wrbBool, wrcBool, wrBool);
-
-  if (!ttBool || tt.map === undefined){
-    ttFragment = ``;
+  if (!ttmBool && !ttcBool && !ttbBool && !wrbBool && !wrcBool && !wrBool){
+    return ``;
+  }
+  if (!ttmBool){
+    if (ttcBool){
+      ttFragment = `have ${tt.course.count} course TT` + (tt.course.count > 1 ? `s`: ``);
+    }
+    else if (ttbBool){
+      ttFragment = `have ${tt.bonus.count} bonus TT` + (tt.bonus.count > 1 ? `s`: ``);
+    }
+    else{
+      ttFragment = ``;
+    }
   }
   else if (tt.map.count > 0 && tt.map.count <= 10){
     ttFragment = `have ${tt.map.count} map TT` + tt.map.count === 1 ? ``: `s`;
@@ -255,17 +276,19 @@ function generateTTSentence(tt, wr){
     wrFragment = ``;
   }
   else{
-    ttFragment = `along with ` + (wrBool ? `${wr.map.count} map` : ``) +
-    (wrcBool && wrbBool ? `, ` : (wrcBool || wrbBool ? ` & `: ``)) + 
+    wrFragment = `along with ` + (wrBool ? `${wr.map.count} map` : ``) +
+    (wrcBool && wrbBool ? `, ` : (wrBool && (wrcBool || wrbBool) ? ` & `: ``)) + 
     (wrcBool ? `${wr.course.count} course` : ``) + 
-    (wrbBool ? ` & ` : ``) +  
-    (wrbBool ? `${wr.bonus.count} bonus` : ``) + 
-    `WR` + wrBool ? (wr.map.count > 1 ? `s` : 
-           (wrcBool ? (wr.course.count > 1 ? `s` : 
-           (wrbBool ? (wr.bonus.count > 1 ? `s` : ``) : ``)): ``)) : ``
-    + `.`;
+    (wrbBool && wrcBool ? ` & ` : ``) +  
+    (wrbBool ? `${wr.bonus.count} bonus` : ``) +
+    ` WR` + 
+      ((wrBool) ? ((wr.map.count > 1) ? `s` : ``):
+        (wrcBool) ? ((wr.course.count > 1) ? `s` : ``):
+          (wrbBool) ? ((wr.bonus.count > 1) ? `s` : ``): ``) +
+    `.`;
   }
-  return `${ttFragment}${wrFragment}`;
+  console.log(ttFragment, wrFragment)
+  return `${ttFragment} ${wrFragment}`;
 }
 
 module.exports = {

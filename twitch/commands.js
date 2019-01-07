@@ -247,7 +247,7 @@ async function stats(target, context, params){
   request(api.tempusGET(api.playerIDEnd + playerID + `/stats`))
   .then(async function(response){
     var results = await tempus.parseStats(response);
-    twitch.sendMessage(target, context, `${response.player_info.name} ${results}`);
+    twitch.sendMessage(target, context, `${results}`);
   })
   .catch(function (response){
     console.log(response);

@@ -137,10 +137,11 @@ async function parseStats(mapObj){
         totalZones = mapObj.zone_count;
     var results = await utils.evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones)
     .catch(e =>{
+      console.log(`Error parsing stats!`);
       reject(e);
     })
     .then(r =>{
-      resolve(results);
+      resolve(`[${countryCode}] ${name} ` + r);
     });
   })
 }
