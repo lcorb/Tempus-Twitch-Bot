@@ -94,13 +94,24 @@ function parseWR(mapObj, tf2Class = "both") {
   //console.log(util.inspect(mapObj, false, null, true));
   var runs = [];
   if (tf2Class === `both`) {
-    runs.push(`(D) ${mapObj.demoman_runs[0].name} - ${utils.timePrettifier(mapObj.demoman_runs[0].duration)}`);
-    runs.push(`(S) ${mapObj.soldier_runs[0].name} - ${utils.timePrettifier(mapObj.soldier_runs[0].duration)}`);
+    console.log(mapObj.demoman_runs[0])
+    console.log(mapObj.soldier_runs[0])
+    if (mapObj.demoman_runs[0] === undefined && mapObj.soldier_runs[0] === undefined){
+      return `No records have been set.`;
+    }
+    else{
+      mapObj.demoman_runs[0] === undefined ? runs.push(`(D) No record currently set.`) : 
+      runs.push(`(D) ${mapObj.demoman_runs[0].name} - ${utils.timePrettifier(mapObj.demoman_runs[0].duration)}`);
+    mapObj.soldier_runs[0] === undefined ? runs.push(`(S) No record currently set.`) : 
+      runs.push(`(S) ${mapObj.soldier_runs[0].name} - ${utils.timePrettifier(mapObj.soldier_runs[0].duration)}`);
+    }
+    return runs.join(` | `);
   }
   else {
-    runs.push(`(S) ${mapObj[tf2Class + `_runs`][0].name} - ${utils.timePrettifier(mapObj[tf2Class + `_runs`][0].duration)}`);
+    return (mapObj[tf2Class + `_runs`][0] === undefined ?
+      `(${utils.classSymbol(tf2Class)}) No record currently set.` :
+      (`(${utils.classSymbol(tf2Class)}) ${mapObj[tf2Class + `_runs`][0].name} - ${utils.timePrettifier(mapObj[tf2Class + `_runs`][0].duration)}`));
   }
-  return runs.join(` | `);
 }
 //zone can be map, bonus, course, trick
 function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map", map = null, exact = false){

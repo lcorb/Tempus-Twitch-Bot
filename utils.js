@@ -268,7 +268,7 @@ function generateTTSentence(tt, wr){
   else if (tt.map.count > 100 && tt.map.count <= 250){
     ttFragment = `have a staggering ${tt.map.count} map TTs`;
   }
-  else if (tt.map.count > 200){
+  else if (tt.map.count > 250){
     ttFragment = `have a monumental ${tt.map.count} map TTs`;
   }
 
