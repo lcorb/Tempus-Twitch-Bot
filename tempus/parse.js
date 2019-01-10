@@ -118,17 +118,22 @@ function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map", map = 
   return new Promise(function(resolve, reject){
     position -= 1;
     if (tf2Class === "both"){
-      resolve(`[# ${position}]` + (zone !== `map` ? `${utils.classSymbol(zone)}${mapObj.zone_info.zoneindex}` : ``) + `${map} -
-       (D) ${mapObj.results.demoman_runs[0].name} - ` +
-       + (exact === true ? mapObj.results.demoman_runs[0].duration + `s`: utils.timePrettifier(mapObj.results[tf2Class][0].duration)) + ` | 
-       (S) ${mapObj.results.soldier_runs[0].name} - ` + 
-       + (exact === true ? mapObj.results.soldier_runs[0].duration + `s`: utils.timePrettifier(mapObj.results[tf2Class][0].duration)));
+      var demoRun = mapObj.results.demoman.length === 0 ? `No demoman run found`: 
+      `[# ${position}]` + (zone !== `map` ? `${utils.classSymbol(zone)}${mapObj.zone_info.zoneindex}` : ``) + `${map} -
+       (D) ${mapObj.results.demoman[0].name} - ` +
+       + (exact === true ? mapObj.results.demoman[0].duration + `s`: utils.timePrettifier(mapObj.results[tf2Class][0].duration)) 
+
+       var soldierRun = mapObj.results.soldier.length === 0 ? `No soldier run found`:
+       `(S) ${mapObj.results.soldier[0].name} - ` + 
+       + (exact === true ? mapObj.results.soldier[0].duration + `s`: utils.timePrettifier(mapObj.results[tf2Class][0].duration));
+
+       resolve(demoRun + ` | ` + soldierRun);
     }
     else{
       resolve(`(${utils.classSymbol(tf2Class)}) ` +
       `${mapObj.results[tf2Class][0].name} is rank ${position+1} with `
-       + (exact === true ? mapObj.results[tf2Class][0].duration + `s` : utils.timePrettifier(mapObj.results[tf2Class][0].duration)) + ` on ${map}`
-       + (zone !== `map` ? ` ${utils.classSymbol(zone)}${mapObj.zone_info.zoneindex} ` : ``));
+        + (exact === true ? mapObj.results[tf2Class][0].duration + `s` : utils.timePrettifier(mapObj.results[tf2Class][0].duration)) + ` on ${map}`
+        + (zone !== `map` ? ` ${utils.classSymbol(zone)}${mapObj.zone_info.zoneindex} ` : ``));
     }
   });
 }

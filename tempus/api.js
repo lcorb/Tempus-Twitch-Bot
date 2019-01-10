@@ -9,6 +9,7 @@ const tempusBase = `https://tempus.xyz/api`,
       playerIDEnd = `/players/id/`,
       rankEnd = `/rank`,
       statsEnd = `/stats`;
+      demoEnd = `/demos/id/`
 
 
 
@@ -57,5 +58,6 @@ module.exports = {
   zoneEnd,
   playerIDEnd,
   rankEnd,
-  statsEnd
+  statsEnd,
+  demoEnd
 };

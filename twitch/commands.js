@@ -60,6 +60,10 @@ const commandList = {
     },
     rrb:{
       mod: true
+    },
+    demo:{
+      usage: `map`,
+      alias: [`stv`, `demos`, `sourcetv`]
     }
   };
   
@@ -103,7 +107,7 @@ function dtime(target, context, params) {
 async function runTime(target, context, params, tf2Class = `both`, type = `map`, zoneIndex = 1, exact = false) {
   var failed = false;
   console.log(!params[4])
-  if (params[4] === `exact` || (params[3] === `exact` && !params[4])){
+  if (params[4] === `exact` || (params[3] === `exact` && !params[4]) || (params[2] === `exact` && !params[3])){
     console.log(`EXACT!`);
     exact = true;
   }
@@ -117,22 +121,22 @@ async function runTime(target, context, params, tf2Class = `both`, type = `map`,
   if (!failed){
     var mapName = await api.tempusSearch(params[runInfo[0]], "Map")
     .catch(e =>{
-      //If we have already failed, no need for this
+      //Syncronous woes
       if (!failed){
         twitch.sendMessage(target, context, `@${context.username} ${e}`);
       };
-      console.log(e)
+      console.log(e);
       return;
     });
     var pos = (runInfo[0] === 1 ? parseInt(params[0]) : parseInt(params[1]));
     request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}${runInfo[1]}/${runInfo[2]}/records/list`, {limit: 1, start: pos}))
     .then(async function (response) {
-      console.log(util.inspect(response, false, null, true));
-      if (response.soldier === null && response.demoman === null){
+      //console.log(util.inspect(response, false, null, true));
+      if (response.results.soldier.length === 0 && response.results.demoman.length === 0){
         twitch.sendMessage(target, context, `@${context.username} No runs found.`);  
       }
-      else if (response[tf2Class] === null && tf2Class !== `both`){
-        twitch.sendMessage(target, context, `@${context.username} No runs found.`);
+      else if (response.results[tf2Class].length === 0 && tf2Class !== `both`){
+        twitch.sendMessage(target, context, `@${context.username} No run found.`);
       }
       else{
         var res = await tempus.parseTime(response, tf2Class, pos, runInfo[1], mapName, exact);
@@ -141,8 +145,18 @@ async function runTime(target, context, params, tf2Class = `both`, type = `map`,
       return;
     })
     .catch(function (response) {
-      twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
-      console.log(util.inspect(response, false, null, true));
+      try{
+        if (response.error.error === undefined){
+          twitch.sendMessage(target, context, `@${context.username} ${response}`);
+        }
+        else{
+          twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
+        }
+      }
+      catch (e){
+        console.log(e);
+        twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
+      }
       return;
     });
   }
@@ -248,7 +262,23 @@ async function stats(target, context, params){
   })
   .catch(function (response){
     console.log(response);
-    twitch.sendMessage(target, context, `@${context.username} Fatal error`);
+    twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
+  })
+}
+
+async function demo(target, context, params){
+  var map = await api.tempusSearch(params[0], "Map").catch(e => {
+    console.log(`${e}`);
+    twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    return;
+  });
+
+  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
+  .then(async function(response){
+    var mapID = response
+  })
+  .catch (function (e){
+    twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
   })
 }
 
