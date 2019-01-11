@@ -8,8 +8,8 @@ const tempusBase = `https://tempus.xyz/api`,
       zoneEnd = `/zones/typeindex/`,
       playerIDEnd = `/players/id/`,
       rankEnd = `/rank`,
-      statsEnd = `/stats`;
-      demoEnd = `/demos/id/`
+      statsEnd = `/stats`,
+      demoEnd = `/demos/id/`;
 
 
 

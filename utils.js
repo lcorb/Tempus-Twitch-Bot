@@ -94,7 +94,7 @@ function verifyNumber(value){
   return new Promise(function (resolve, reject){
     if (value < 1 && value !== 0){
       value = Math.round(value);
-      value += value*2;
+      value = value * -1;
     }
     else if (value === 0){
       value = null;
