@@ -249,15 +249,15 @@ async function mi(target, context, params) {
     });
 };
 
-async function stats(target, context, params){
-  var playerID = await api.tempusSearch(params[0], "Player").catch(e => {
+async function stats(target, context, params, stats = {type: `full`}){
+  playerID = await api.tempusSearch(params[0], "Player").catch(e => {
     console.log(`${e}`);
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
     return;
   });
   request(api.tempusGET(api.playerIDEnd + playerID + `/stats`))
   .then(async function(response){
-    var results = await tempus.parseStats(response);
+    var results = await tempus.parseStats(response, stats);
     twitch.sendMessage(target, context, `${results}`);
   })
   .catch(function (response){
@@ -275,12 +275,43 @@ async function demo(target, context, params){
 
   request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
   .then(async function(response){
-    var mapID = response
+    var mapID = response;
   })
   .catch (function (e){
     twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
   })
 }
+
+async function rank(target, context, params, tf2Class = `overall`){
+
+  if (typeof params[0] === `number`) {
+    request(api.tempusGET(api.tempusGET(api.rankEnd, {limit: 1, start: pos})))
+    .then(async function(response){
+      var results = await tempus.parseRank(response);
+      twitch.sendMessage(target, context, `${results}`);
+    })
+    .catch(function (e){
+      twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    })
+  }
+  else {
+    var playerID = await api.tempusSearch(params[0], "Player").catch(e => {
+      console.log(`${e}`);
+      twitch.sendMessage(target, context, `@${context.username} ${e}`);
+      return;
+    });
+    stats (target, context, params, {type: rank, tf2Class: tf2Class, playerID: playerID});
+  }
+}
+
+function srank(target, context, params) {
+  rank(target, context, params, 3);
+}
+
+function drank(target, context, params) {
+  rank(target, context, params, 4);
+}
+
 
 module.exports = {
   commandList,
@@ -297,5 +328,8 @@ module.exports = {
   rrm,
   rrb,
   rrc,
-  stats
+  stats,
+  rank,
+  srank,
+  drank
 };

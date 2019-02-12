@@ -137,9 +137,10 @@ function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map", map = 
     }
   });
 }
-async function parseStats(mapObj){
+async function parseStats(mapObj, stats = {type: `full`}){
   console.log(util.inspect(mapObj, false, null, true));
   return new Promise(async function (resolve, reject){
+
     var name = mapObj.player_info.name,
         sRank = mapObj.class_rank_info[`3`].rank,
         dRank = mapObj.class_rank_info[`4`].rank,
@@ -151,6 +152,15 @@ async function parseStats(mapObj){
         wrs = mapObj.wr_stats,
         pr = mapObj.pr_stats,
         totalZones = mapObj.zone_count;
+    
+    if (stats.type === `rank`) {
+      if (stats.tf2Class === `overall`) {
+        resolve (`${name} is rank ${sRank} as Soldier (${utils.formatPoints(sPoints)}) &` +
+                                 `${dRank} as Demoman (${utils.formatPoints(dPoints)}).`);
+      }
+      resolve (`${name} is rank ${mapObj.class_rank_info[tf2Class].rank} as ` + tf2Class === 3 ? `Soldier.` : `Demoman.`);
+    }
+
     var results = await utils.evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones)
     .catch(e =>{
       console.log(`Error parsing stats!`);
@@ -162,6 +172,12 @@ async function parseStats(mapObj){
   })
 }
 
+async function parseRank(rankObj, tf2Class){
+  return new Promise(function(resolve, reject) {
+
+  })
+}
+
 module.exports = {
   parseMap,
   parseActivity,
@@ -170,5 +186,6 @@ module.exports = {
   parseVids,
   parseWR,
   parseStats,
-  parseTime
+  parseTime,
+  parseRank
 };
