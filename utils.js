@@ -131,15 +131,9 @@ function determineRunType(s){
 //Function needs to dynamically generate sentences based on stats
 async function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones){
   return new Promise(async function (resolve, reject){
-    if (!Boolean(pr) || (sRank === 0 && dRank === 0)){
-      reject(`doesn't appear to have any stats on Tempus.`);
-    }
-    else{
       var rankSentence = await generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints);
       var completionSentence = await generateCompletionSentence(pr.map.count, tops, wrs, totalZones.map.count);
-      console.log(`${rankSentence} ${completionSentence}`)
       resolve(`${rankSentence} ${completionSentence}`);
-    }
   })
 }
 
@@ -180,10 +174,7 @@ function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
 function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 0){
   sPoints = formatPoints(sPoints);
   dPoints = formatPoints(dPoints);
-  console.log(sPoints, dPoints)
-  console.log(number)
   var pointFragment = (tf2Class === `Soldier` ? (tf2Class === `Demoman` ? `with ${sPoints} & ${dPoints} respectively` : `with ${sPoints} points`) : `with ${dPoints} points`);
-  console.log(pointFragment);
   //Above rank 100
   if (number >= rankThresholds[0]){
     return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`) + ` ${pointFragment}`;
@@ -222,7 +213,6 @@ function generateCompletionSentence(pr, tt, wr, totalZones){
   return new Promise(function (resolve, reject){
     var firstFragment = completionThresholdCheck(pr, totalZones),
         secondFragment = generateTTSentence(tt, wr);
-        console.log(secondFragment === ``);
         resolve(`${firstFragment}` + (secondFragment === `` ? `.` : ` ${secondFragment}`));
   });
 }
@@ -247,29 +237,29 @@ function generateTTSentence(tt, wr){
   }
   if (!ttmBool){
     if (ttcBool){
-      ttFragment = `have ${tt.course.count} course TT` + (tt.course.count > 1 ? `s`: ``);
+      ttFragment = `and ${tt.course.count} course TT` + (tt.course.count > 1 ? `s`: ``);
     }
     else if (ttbBool){
-      ttFragment = `have ${tt.bonus.count} bonus TT` + (tt.bonus.count > 1 ? `s`: ``);
+      ttFragment = `and ${tt.bonus.count} bonus TT` + (tt.bonus.count > 1 ? `s`: ``);
     }
     else{
       ttFragment = ``;
     }
   }
   else if (tt.map.count > 0 && tt.map.count <= 10){
-    ttFragment = `have ${tt.map.count} map TT` + tt.map.count === 1 ? ``: `s`;
+    ttFragment = `and ${tt.map.count} map TT` + tt.map.count === 1 ? ``: `s`;
   }
   else if (tt.map.count > 10 && tt.map.count <= 50){
-    ttFragment = `have a hefty ${tt.map.count} map TTs`;
+    ttFragment = `and a hefty ${tt.map.count} map TTs`;
   }
   else if (tt.map.count > 50 && tt.map.count <= 100){
-    ttFragment = `have a beefy ${tt.map.count} map TTs`;
+    ttFragment = `and a beefy ${tt.map.count} map TTs`;
   }
   else if (tt.map.count > 100 && tt.map.count <= 250){
-    ttFragment = `have a staggering ${tt.map.count} map TTs`;
+    ttFragment = `and a staggering ${tt.map.count} map TTs`;
   }
   else if (tt.map.count > 250){
-    ttFragment = `have a monumental ${tt.map.count} map TTs`;
+    ttFragment = `and a monumental ${tt.map.count} map TTs`;
   }
 
   if (!wrBool && !wrcBool && !wrbBool){
@@ -287,7 +277,6 @@ function generateTTSentence(tt, wr){
           (wrbBool) ? ((wr.bonus.count > 1) ? `s` : ``): ``) +
     `.`;
   }
-  console.log(ttFragment, wrFragment)
   return `${ttFragment} ${wrFragment}`;
 }
 

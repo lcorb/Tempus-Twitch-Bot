@@ -33,7 +33,7 @@ function parseActivity(type, all = false) {
             response.push(`(${tf2Class}) [#${rank}] ${map} - ${player}`);
           }
           else{
-            console.log(`Player: ${player}\n${map}\n${rank}\n${tf2Class}`)
+            //console.log(`Player: ${player}\n${map}\n${rank}\n${tf2Class}`)
             response.push(`(${tf2Class}) ` + 
             (type === `map_wrs` ? `` : ((type === (`course_wrs`) ? ` Course `: ` Bonus `)) + `${activityObj[type][i].zone_info[`zoneindex`]}`)
             + ` ${map} - ${player}`);
@@ -80,14 +80,15 @@ function parseTiers(mapObj) {
 };
 function parseVids(mapObj) {
   var vids = [];
+  
   if (mapObj.videos["soldier"] || mapObj.videos["demoman"]){
-    mapObj.videos["soldier"] ? vids.push(`Soldier: youtu.be/` + mapObj.videos["soldier"]): vids.push(``);
-    mapObj.videos["demoman"] ? vids.push(`Demoman: youtu.be/` + mapObj.videos["demoman"]): vids.push(``);
-    vids.join(` `);
+    mapObj.videos["soldier"] ? vids.push(`Soldier: youtu.be/` + mapObj.videos["soldier"]): {}; //pass
+    mapObj.videos["demoman"] ? vids.push(`Demoman: youtu.be/` + mapObj.videos["demoman"]): {}; //pass
+    vids = vids.join(` | `);
   }
   else{
     return `No videos found.`
-  }  
+  }
   return vids;
 };
 function parseWR(mapObj, tf2Class = "both") {
@@ -138,37 +139,40 @@ function parseTime(mapObj, tf2Class = "both", position = 1, zone = "map", map = 
   });
 }
 async function parseStats(mapObj, stats = {type: `full`}){
-  console.log(util.inspect(mapObj, false, null, true));
   return new Promise(async function (resolve, reject){
 
-    var name = mapObj.player_info.name,
-        sRank = mapObj.class_rank_info[`3`].rank,
-        dRank = mapObj.class_rank_info[`4`].rank,
-        sPoints = mapObj.class_rank_info[`3`].points,
-        dPoints = mapObj.class_rank_info[`4`].points,
-        overallRank = mapObj.rank_info.rank,
-        countryCode = mapObj.player_info.country_code,
-        tops = mapObj.top_stats,
-        wrs = mapObj.wr_stats,
-        pr = mapObj.pr_stats,
-        totalZones = mapObj.zone_count;
-    
+    if ((mapObj.class_rank_info[`4`].rank === 0 && mapObj.class_rank_info[`3`].rank === 0) || (!mapObj.pr_stats.map)){
+      reject(`${mapObj.player_info.name} doesn't appear to have any notable stats on Tempus.`);
+    }
+    else {
+      var name = mapObj.player_info.name,
+      sRank = mapObj.class_rank_info[`3`].rank,
+      dRank = mapObj.class_rank_info[`4`].rank,
+      sPoints = mapObj.class_rank_info[`3`].points,
+      dPoints = mapObj.class_rank_info[`4`].points,
+      overallRank = mapObj.rank_info.rank,
+      countryCode = mapObj.player_info.country_code,
+      tops = mapObj.top_stats,
+      wrs = mapObj.wr_stats,
+      pr = mapObj.pr_stats,
+      totalZones = mapObj.zone_count;
+  
     if (stats.type === `rank`) {
       if (stats.tf2Class === `overall`) {
         resolve (`${name} is rank ${sRank} as Soldier (${utils.formatPoints(sPoints)}) &` +
-                                 `${dRank} as Demoman (${utils.formatPoints(dPoints)}).`);
+                                `${dRank} as Demoman (${utils.formatPoints(dPoints)}).`);
       }
       resolve (`${name} is rank ${mapObj.class_rank_info[tf2Class].rank} as ` + tf2Class === 3 ? `Soldier.` : `Demoman.`);
     }
 
     var results = await utils.evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones)
     .catch(e =>{
-      console.log(`Error parsing stats!`);
       reject(e);
     })
     .then(r =>{
-      resolve(`[${countryCode}] ${name} ` + r);
+      resolve((countryCode == null ? `` : `[${countryCode}] `) + `${name} ` + r);
     });
+    }
   })
 }
 

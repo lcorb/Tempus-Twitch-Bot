@@ -42,7 +42,7 @@ function onMessageHandler(target, context, msg, self){
           if (value[1].alias[i] === commandName){
             found = true;
             knownCommands[value[0]](target, context, params);
-            console.log(`Executed alias ${knownCommands[commandName]} command for ${context.username}`);
+            console.log(`Executed alias ${commandPrefix}${value[1].alias[i]} command for ${context.username}`);
           }
         }
       }

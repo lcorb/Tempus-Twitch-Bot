@@ -7,44 +7,44 @@ const twitch = require("./message.js");
 
 const commandList = {
     stime: {
-      usage: `(map|place) (map|place)`
+      usage: `<map> <place>`
     },
     dtime:{
-      usage: `(map|place) (map|place)`
+      usage: `<map> <place>`
     },
     mi:{
-      usage: `map`,
+      usage: `<map>`,
       alias: [`m`, `map`, `mapinfo`]
     },
     vid:{
-      usage: `map`,
+      usage: `<map>`,
       alias: [`vids`, `showcase`]
     },
     wr:{
-      usage: `map`
+      usage: `<map>`
     },
     swr:{
-      usage: `map`
+      usage: `<map>`
     },
     dwr:{
-      usage: `map`
+      usage: `<map>`
     },
     authors:{
-      usage: `map`,
+      usage: `<map>`,
       alias: [`creator`, `mapper`]
     },
     stats:{
-      usage: `player`,
+      usage: `<player>`,
       alias: [`p`, `profile`]
     },
     srank:{
-      usage: `player`
+      usage: `<player>`
     },
     drank:{
-      usage: `player`
+      usage: `<player>`
     },
     rank:{
-      usage: `player`
+      usage: `<player>`
     },
     rr:{
       mod: true
@@ -62,7 +62,7 @@ const commandList = {
       mod: true
     },
     demo:{
-      usage: `map`,
+      usage: `<map>`,
       alias: [`stv`, `demos`, `sourcetv`]
     }
   };
@@ -164,7 +164,6 @@ async function runTime(target, context, params, tf2Class = `both`, type = `map`,
 async function rr(target, context, params, type=`map_wrs`) {
   //type should be map_tops, course_wrs, map_wrs, bonus_wrs
   var activity = await tempus.parseActivity(type);
-  console.log(activity);
   //Split into multiple messages due to formatting issues - whiteSpace()
   //twitch.sendMessage(target, context, `@${context.username} Recent Records: ${activity}`);
   activity.forEach(e =>{
@@ -262,7 +261,7 @@ async function stats(target, context, params, stats = {type: `full`}){
   })
   .catch(function (response){
     console.log(response);
-    twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
+    twitch.sendMessage(target, context, `@${context.username} ${response}`);
   })
 }
 

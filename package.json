@@ -1,0 +1,23 @@
+{
+  "name": "tempus-twitch-bot",
+  "version": "1.0.0",
+  "description": "Twitch bot for Tempus Network",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lcorb/Tempus-Twitch-Bot.git"
+  },
+  "author": "Liam Corbett",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lcorb/Tempus-Twitch-Bot/issues"
+  },
+  "homepage": "https://github.com/lcorb/Tempus-Twitch-Bot#readme",
+  "dependencies": {
+    "request-promise": "^4.2.4",
+    "util": "^0.11.1"
+  }
+}
