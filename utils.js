@@ -1,283 +1,120 @@
-const lineLength = 45,
-      bonusTypes = [`b`, `bonus`],
-      courseTypes = [`c`, `course`],
-      rankThresholds = [100, 50, 10, 5, 2, 3, 1];
-      //completionThresholds = [20, 50, 70, 90];
+const lineLength = 45;
 
+/**
+ * Formats seconds into hours:minutes:seconds.
+ * @param {string} time Seconds
+ * @return {string}
+ */
 function timePrettifier(time) {
-  var hours = Math.floor(time / 3600);
-  var minutes = Math.floor(time % 3600 / 60);
-  var seconds = time % 3600 % 60;
+  const hours = Math.floor(time / 3600);
+  let minutes = Math.floor(time % 3600 / 60);
+  let seconds = time % 3600 % 60;
   seconds = truncate(seconds, 2);
   seconds = (seconds < 10) ? `0` + seconds : seconds;
   minutes = (minutes < 10) ? `0` + minutes : minutes;
   return timeReturn(seconds, minutes, hours);
 }
-//Final formatting pass to decide whether to include hours & minutes or append `s` to seconds
+
+/**
+ * Final formatting pass to decide whether to include hours & minutes or append `s` to seconds.
+ * @param {string} seconds
+ * @param {string} minutes
+ * @param {string} hours
+ * @return {string}
+ */
 function timeReturn(seconds, minutes, hours) {
   return ((hours == 0 ? `` : `${hours}:`) +
     (minutes == 0 && hours == 0 ? `` : `${minutes}:`) +
     (minutes == 0 && hours == 0 ? (seconds < 10 ? `${seconds.substr(1)}s` : `${seconds}s`) : `${seconds}`));
 }
 
+/**
+ * Truncate a number.
+ * @param {float} t Number to truncate
+ * @param {int} d Amount of decimals
+ * @return {int}
+ */
 function truncate(t, d) {
   return Math.trunc(t * Math.pow(10, d)) / Math.pow(10, d);
 }
 
-function addWhitespace(currentLength) {  
-  if (currentLength == lineLength){
+/**
+ * (Unused) Adds whitespace to string, to format chat responses.
+ * @param {integer} currentLength Length of current line
+ * @return {string} Return string of videos if any
+ */
+function addWhitespace(currentLength) {
+  if (currentLength == lineLength) {
     return ``;
   }
-  //Divide because of weird whitespace char
-  var lengthLeft = Math.round((lineLength % currentLength)/3);
+  // Divide because of weird whitespace char
+  const lengthLeft = Math.round((lineLength % currentLength)/3);
   console.log(`${lengthLeft} = ${lineLength} - (${currentLength} % ${lineLength})`);
   // ` ‏‏‎` << Weird fake whitespace char
-  var spaces = new Array(lengthLeft + 1).join(` ‏‏‎`);
+  const spaces = new Array(lengthLeft + 1).join(` ‏‏‎`);
   console.log(spaces.length);
   console.log(`Returning: '${spaces}'`);
   return spaces;
 }
-//Determines the order of parameters, whether it starts with a map name or placement number
-//1 is place
-//0 is map
-//This is done to use the return value for an array index
-async function determineParameters(p1, p2, p3 = null){
-  return new Promise(async function (resolve, reject) {
-      var results = []
-    if (!Number(p1) && Number(p2)){
-      //Order is map place      
-      results.push(0);
+
+/**
+ * Ensure the number is positive, remove decimals and check type.
+ * @param {integer} value
+ * @return {integer} Positive number, or error if NaN
+ */
+function verifyNumber(value) {
+  value = Number(value);
+  return new Promise(function(resolve, reject) {
+    if (value < 1 && value !== 0) {
+      value = Math.round(value);
+      value = value * -1;
+    } else if (value === 0) {
+      value = null;
+    } else if (!Number(value)) {
+      value = null;
     }
-    else if (!Number(p2) && Number(p1)){
-      //Order is place map
-      results.push(1);
-    }
-    else{
-      //Order contains either 2 numbers or no numbers - could be an issue for specific maps, adding map type prefix will fix as they will not be numbers
-      reject(`Bad parameters.`);
-    }
-    if (p3 !== null && p3 !== `exact`){
-      var type = await readParameterRunType(p3)
-      .catch(e =>{
-        reject(e);
-      });
-      results = results.concat(type);
-      resolve(results);
-    }
-    else{
-      results.push(`map`);
-      results.push(1);
-      resolve(results);
+    if (value !== null) {
+      resolve(value);
+    } else {
+      reject(value);
     }
   });
 }
-//Used to determine if the command included a 3rd parameter
-//Should be in the format of `b` or `c` followed by a natural non-zero number
-async function readParameterRunType(p){
-  //Match numbers and remove them
-  var type = p.replace(/[0-9]/g,'');
-  //Match letters and remove them
-  var number = p.replace(/[\D]/g,'');
-  type = await determineRunType(type);
-  number = await verifyNumber(number);
-  if (type === undefined || number === undefined || type === null || number === null){
-    return null;
-  }
-  else{
-    return [type, number];
-  }
-}
-//If the number is negative flip the sign
-//If the number is 0 we don't want it
-function verifyNumber(value){
-  value = Number(value);
-  return new Promise(function (resolve, reject){
-    if (value < 1 && value !== 0){
-      value = Math.round(value);
-      value = value * -1;
-    }
-    else if (value === 0){
-      value = null;
-    }
-    else if (!Number(value)){
-      value = null;
-    }
-    if (value !== null){
-      resolve(value);
-    }
-    else{
-      reject(value);
-    }    
-  })
-}
 
-function classSymbol(s){
+/**
+ * Convert tf2 class into class symbol (S, D).
+ * @param {string} s tf2 class
+ * @return {string} S or D
+ */
+function classSymbol(s) {
   return s.charAt(0).toUpperCase();
 }
 
-function determineRunType(s){
-  return new Promise(function (resolve, reject){
-    if (bonusTypes.indexOf(s) > -1){
-      resolve(`bonus`);
-    }
-    else if (courseTypes.indexOf(s) > -1){
-      resolve(`course`);
-    }
-    else{
-      reject(`null`);
-    }
-  })
-}
-//Function needs to dynamically generate sentences based on stats
-async function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones){
-  return new Promise(async function (resolve, reject){
-      var rankSentence = await generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints);
-      var completionSentence = await generateCompletionSentence(pr.map.count, tops, wrs, totalZones.map.count);
-      resolve(`${rankSentence} ${completionSentence}`);
-  })
-}
-
-function stringReverse(s){
-  s = s.split(``)
+/**
+ * Reverse a string.
+ * @param {string} s
+ * @return {string}
+ */
+function stringReverse(s) {
+  s = s.split(``);
   s.reverse();
   return s.join(``);
 }
 
-function formatPoints(points){  
+/**
+ * Format points into format of (1 000 000).
+ * @param {string} points
+ * @return {string} Return string of formatted points (spaces between every 3 numbers)
+ */
+function formatPoints(points) {
   points = truncate(points, 0).toString();
   points = stringReverse(points);
-  //Need to reverse because of dodgy regex
-  points = points.replace(/(.{3})/g, "$1 ");
-  if (points.charAt(points.length-1) === ` `){
+  // Need to reverse because of dodgy regex
+  points = points.replace(/(.{3})/g, '$1 ');
+  if (points.charAt(points.length-1) === ` `) {
     points = points.slice(0, points.length-1);
   }
   return stringReverse(points);
-}
-
-function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints){
-  var firstFragment = ``;
-  if (sRank < dRank){
-    firstFragment = rankThresholdCheck(sRank, `Soldier`, sPoints, dPoints);
-  }
-  else if (dRank < sRank){
-    firstFragment = rankThresholdCheck(dRank, `Demoman`, sPoints, dPoints);
-  }
-  else if (sRank === dRank){
-    firstFragment = rankThresholdCheck(sRank, `Both`, sPoints, dPoints);
-  }
-  if (overallRank <= rankThresholds[0]){
-    var secondFragment = `is rank ${overallRank} overall`;
-  }
-  return `${firstFragment}` + (Boolean(secondFragment) ? ` and ${secondFragment}.` : `.`);
-}
-
-function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 0){
-  sPoints = formatPoints(sPoints);
-  dPoints = formatPoints(dPoints);
-  var pointFragment = (tf2Class === `Soldier` ? (tf2Class === `Demoman` ? `with ${sPoints} & ${dPoints} respectively` : `with ${sPoints} points`) : `with ${dPoints} points`);
-  //Above rank 100
-  if (number >= rankThresholds[0]){
-    return `is rank ` + (tf2Class === `Both` ? `for both classes`: `${number} as ${tf2Class}`) + ` ${pointFragment}`;
-  }
-  //Below rank 100 and above 50
-  else if (number <= rankThresholds[0] && number > rankThresholds[1]){
-    return `holds a respectable rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
-  }
-  //Below rank 50 and above 10
-  else if (number <= rankThresholds[1] && number > rankThresholds[2]){
-    return `tops out at an impressive rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
-  }
-  //Below rank 10 and above 5
-  else if (number <= rankThresholds[2] && number > rankThresholds[3]){
-    return `is one of the best at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}`) + ` ${pointFragment}`;
-  }
-  //Below rank 5 and above 3
-  else if (number <= rankThresholds[3] && number > rankThresholds[4]){
-    return `is unmatched at rank ${number}` + (tf2Class === `Both` ? `for both classes`: ` as ${tf2Class}` ) + ` ${pointFragment}`;
-  }
-  //Rank 3
-  else if (number === rankThresholds[4]){
-    return `is the third highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
-  }
-  //Rank 2
-  else if (number === rankThresholds[5]){
-    return `is the second highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
-  }
-  //Rank 1
-  else if (number === rankThresholds[6]){
-    return `is the highest ranked player ` + (tf2Class === `Both` ? `for both classes`: `as ${tf2Class}`) + ` ${pointFragment}`;
-  }
-}
-
-function generateCompletionSentence(pr, tt, wr, totalZones){
-  return new Promise(function (resolve, reject){
-    var firstFragment = completionThresholdCheck(pr, totalZones),
-        secondFragment = generateTTSentence(tt, wr);
-        resolve(`${firstFragment}` + (secondFragment === `` ? `.` : ` ${secondFragment}`));
-  });
-}
-//[20, 50, 70, 90]
-function completionThresholdCheck(count, total){
-  var percentage = truncate((count / (total * 2)) * 100, 2);
-  return `They have ${percentage}% [${count}] overall completions`;
-}
-
-function generateTTSentence(tt, wr){
-  var ttFragment = ``,
-      wrFragment = ``,
-      ttmBool = Boolean(tt.map),
-      ttcBool = Boolean(tt.course),
-      ttbBool = Boolean(tt.bonus),
-      wrbBool = Boolean(wr.bonus),
-      wrcBool = Boolean(wr.course),
-      wrBool = Boolean(wr.map);
-
-  if (!ttmBool && !ttcBool && !ttbBool && !wrbBool && !wrcBool && !wrBool){
-    return ``;
-  }
-  if (!ttmBool){
-    if (ttcBool){
-      ttFragment = `and ${tt.course.count} course TT` + (tt.course.count > 1 ? `s`: ``);
-    }
-    else if (ttbBool){
-      ttFragment = `and ${tt.bonus.count} bonus TT` + (tt.bonus.count > 1 ? `s`: ``);
-    }
-    else{
-      ttFragment = ``;
-    }
-  }
-  else if (tt.map.count > 0 && tt.map.count <= 10){
-    ttFragment = `and ${tt.map.count} map TT` + tt.map.count === 1 ? ``: `s`;
-  }
-  else if (tt.map.count > 10 && tt.map.count <= 50){
-    ttFragment = `and a hefty ${tt.map.count} map TTs`;
-  }
-  else if (tt.map.count > 50 && tt.map.count <= 100){
-    ttFragment = `and a beefy ${tt.map.count} map TTs`;
-  }
-  else if (tt.map.count > 100 && tt.map.count <= 250){
-    ttFragment = `and a staggering ${tt.map.count} map TTs`;
-  }
-  else if (tt.map.count > 250){
-    ttFragment = `and a monumental ${tt.map.count} map TTs`;
-  }
-
-  if (!wrBool && !wrcBool && !wrbBool){
-    wrFragment = ``;
-  }
-  else{
-    wrFragment = `along with ` + (wrBool ? `${wr.map.count} map` : ``) +
-    (wrcBool && wrbBool ? `, ` : (wrBool && (wrcBool || wrbBool) ? ` & `: ``)) + 
-    (wrcBool ? `${wr.course.count} course` : ``) + 
-    (wrbBool && wrcBool ? ` & ` : ``) +  
-    (wrbBool ? `${wr.bonus.count} bonus` : ``) +
-    ` WR` + 
-      ((wrBool) ? ((wr.map.count > 1) ? `s` : ``):
-        (wrcBool) ? ((wr.course.count > 1) ? `s` : ``):
-          (wrbBool) ? ((wr.bonus.count > 1) ? `s` : ``): ``) +
-    `.`;
-  }
-  return `${ttFragment} ${wrFragment}`;
 }
 
 module.exports = {
@@ -285,5 +122,7 @@ module.exports = {
   addWhitespace,
   determineParameters,
   classSymbol,
-  evaluateStats
+  evaluateStats,
+  verifyNumber,
+  formatPoints,
 };

@@ -1,314 +1,303 @@
-const twitch = require("./message.js");
-      api = require('../tempus/api.js'),
-      tempus = require('../tempus/parse.js'),
-      request = require('request-promise'),
-      utils = require(`../utils.js`),
-      util = require('util');
+const authorsCall = require(`./commands/authors/call`);
+const mapInfoCall = require(`./commands/mapinfo/call`);
+const rankCall = require(`./commands/rank/call`);
+const recentrecordsCall = require(`./commands/recentrecords/call`);
+const statsCall = require(`./commands/stats/call`);
+const tierCall = require(`./commands/tier/call`);
+const timeCall = require(`./commands/time/call`);
+const vidCall = require(`./commands/vid/call`);
+const worldrecordCall = require(`./commands/worldrecord/call`);
+const demoCall = require(`./commands/demo/call`);
 
 const commandList = {
-    stime: {
-      usage: `<map> <place>`
-    },
-    dtime:{
-      usage: `<map> <place>`
-    },
-    mi:{
-      usage: `<map>`,
-      alias: [`m`, `map`, `mapinfo`]
-    },
-    vid:{
-      usage: `<map>`,
-      alias: [`vids`, `showcase`]
-    },
-    wr:{
-      usage: `<map>`
-    },
-    swr:{
-      usage: `<map>`
-    },
-    dwr:{
-      usage: `<map>`
-    },
-    authors:{
-      usage: `<map>`,
-      alias: [`creator`, `mapper`]
-    },
-    stats:{
-      usage: `<player>`,
-      alias: [`p`, `profile`]
-    },
-    srank:{
-      usage: `<player>`
-    },
-    drank:{
-      usage: `<player>`
-    },
-    rank:{
-      usage: `<player>`
-    },
-    rr:{
-      mod: true
-    },
-    rrtt:{
-      mod: true
-    },
-    rrm:{
-      mod: true
-    },
-    rrc:{
-      mod: true
-    },
-    rrb:{
-      mod: true
-    },
-    demo:{
-      usage: `<map>`,
-      alias: [`stv`, `demos`, `sourcetv`]
-    }
-  };
-  
-  //GENERAL PARAMS//
-  
-  //target
-  //User who sent message
-  
-  //context
-  //userstate object, describes a user: moderator, follow status etc
-  
-  //params
-  //parsed parameters (everything after the original command)
-  
-async function authors(target, context, params) {
-  var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
-    console.log(`${e}`);
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    return;
-  });
-  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
-    .then(async function (response) {
-      var authors = await tempus.parseAuthors(response, true);
-      twitch.sendMessage(target, context, `@${context.username} ${mapName} || Created by: ${authors}`);
-      return;
-    })
-    .catch(function (response) {
-      if (response.statusCode == 404) {
-        console.log(`${response.error.error}`);
-        //twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
-      };
-      return;
-    });
+  stime: {
+    usage: `<map> <#place>`,
+  },
+  dtime: {
+    usage: `<map> <#place>`,
+  },
+  time: {
+    usage: `<map> <#place>`,
+  },
+  mi: {
+    usage: `<map>`,
+    alias: [`m`, `map`, `mapinfo`],
+  },
+  tier: {
+    usage: `<map>`,
+    alias: [`tiers`, `difficulty`],
+  },
+  vid: {
+    usage: `<map>`,
+    alias: [`vids`, `showcase`],
+  },
+  wr: {
+    usage: `<map>`,
+    alias: [`record`, `records`],
+  },
+  swr: {
+    usage: `<map>`,
+  },
+  dwr: {
+    usage: `<map>`,
+  },
+  authors: {
+    usage: `<map>`,
+    alias: [`creator`, `mapper`],
+  },
+  stats: {
+    usage: `<player>`,
+    alias: [`p`, `profile`, `stat`],
+  },
+  srank: {
+    usage: `<player>`,
+  },
+  drank: {
+    usage: `<player>`,
+  },
+  rank: {
+    usage: `<player>`,
+  },
+  rr: {
+    alias: [`recentrecords`, `recent`],
+    mod: true,
+  },
+  rrtt: {
+    mod: true,
+  },
+  rrm: {
+    mod: true,
+  },
+  rrc: {
+    mod: true,
+  },
+  rrb: {
+    mod: true,
+  },
+  demo: {
+    usage: `<map>`,
+    alias: [`stv`, `demos`, `sourcetv`],
+  },
 };
+
+/**
+ * Command handle for map authors.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function authors(target, context, params) {
+  authorsCall(target, context, params);
+}
+
+/**
+ * Command handle for soldier times.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
 function stime(target, context, params) {
-  runTime(target, context, params, `soldier`);
-};
+  timeCall(target, context, params, `soldier`);
+}
+
+/**
+ * Command handle for demoman times.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
 function dtime(target, context, params) {
-  runTime(target, context, params, `demoman`);
-};
-async function runTime(target, context, params, tf2Class = `both`, type = `map`, zoneIndex = 1, exact = false) {
-  var failed = false;
-  console.log(!params[4])
-  if (params[4] === `exact` || (params[3] === `exact` && !params[4]) || (params[2] === `exact` && !params[3])){
-    console.log(`EXACT!`);
-    exact = true;
-  }
-  var runInfo = await utils.determineParameters(params[0], params[1], params[2])
-  .catch(e =>{
-    console.log(e);
-    failed = true;
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    return;
-  })
-  if (!failed){
-    var mapName = await api.tempusSearch(params[runInfo[0]], "Map")
-    .catch(e =>{
-      //Syncronous woes
-      if (!failed){
-        twitch.sendMessage(target, context, `@${context.username} ${e}`);
-      };
-      console.log(e);
-      return;
-    });
-    var pos = (runInfo[0] === 1 ? parseInt(params[0]) : parseInt(params[1]));
-    request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}${runInfo[1]}/${runInfo[2]}/records/list`, {limit: 1, start: pos}))
-    .then(async function (response) {
-      //console.log(util.inspect(response, false, null, true));
-      if (response.results.soldier.length === 0 && response.results.demoman.length === 0){
-        twitch.sendMessage(target, context, `@${context.username} No runs found.`);  
-      }
-      else if (response.results[tf2Class].length === 0 && tf2Class !== `both`){
-        twitch.sendMessage(target, context, `@${context.username} No run found.`);
-      }
-      else{
-        var res = await tempus.parseTime(response, tf2Class, pos, runInfo[1], mapName, exact);
-        twitch.sendMessage(target, context, `@${context.username} ${res}`);
-      }    
-      return;
-    })
-    .catch(function (response) {
-      try{
-        if (response.error.error === undefined){
-          twitch.sendMessage(target, context, `@${context.username} ${response}`);
-        }
-        else{
-          twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
-        }
-      }
-      catch (e){
-        console.log(e);
-        twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
-      }
-      return;
-    });
-  }
+  timeCall(target, context, params, `demoman`);
 }
-async function rr(target, context, params, type=`map_wrs`) {
-  //type should be map_tops, course_wrs, map_wrs, bonus_wrs
-  var activity = await tempus.parseActivity(type);
-  //Split into multiple messages due to formatting issues - whiteSpace()
-  //twitch.sendMessage(target, context, `@${context.username} Recent Records: ${activity}`);
-  activity.forEach(e =>{
-    twitch.sendMessage(target, context, `${e}`);
-  })
-};
-function rrm(target, context, params){
-  rr(target, context, params);
+
+/**
+ * Command handle for both time classes.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function time(target, context, params) {
+  timeCall(target, context, params, `both`);
 }
-function rrtt(target, context, params){
-  rr(target, context, params, `map_tops`);
+
+/**
+ * Command handle for map information.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function mi(target, context, params) {
+  mapInfoCall(target, context, params);
 }
-function rrc(target, context, params){
-  rr(target, context, params, `course_wrs`);
+
+/**
+ * Command handle for tiers.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function tier(target, context, params) {
+  tierCall(target, context, params);
 }
-function rrb(target, context, params){
-  rr(target, context, params, `bonus_wrs`);
+
+/**
+ * Command handle for recent records.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function rr(target, context, params) {
+  recentrecordsCall(target, context, params, `map_wrs`);
 }
-async function vid(target, context, params) {
-  var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
-    console.log(`${e}`);
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    return;
-  });
-  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
-    .then(async function (response) {
-      vids = await tempus.parseVids(response);
-      twitch.sendMessage(target, context, `@${context.username} ${vids}`);
-    })
-    .catch(function (response) {
-      if (response.statusCode == 404) {
-        console.log(`${response.error.error}`);
-        //twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
-      }
-    });
-};
+
+/**
+ * Command handle for recent records (maps).
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function rrm(target, context, params) {
+  recentrecordsCall(target, context, params, `map_wrs`);
+}
+
+/**
+ * Command handle for recent records (top times).
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function rrtt(target, context, params) {
+  recentrecordsCall(target, context, params, `map_tops`);
+}
+
+/**
+ * Command handle for recent records (courses).
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function rrc(target, context, params) {
+  recentrecordsCall(target, context, params, `course_wrs`);
+}
+
+/**
+ * Command handle for recent records (bonuses).
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function rrb(target, context, params) {
+  recentrecordsCall(target, context, params, `bonus_wrs`);
+}
+
+/**
+ * Command handle for map videoes.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function vid(target, context, params) {
+  vidCall(target, context, params);
+}
+
+/**
+ * Command handle for soldier world records.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
 function swr(target, context, params) {
-  wr(target, context, params, "soldier");
-};
+  worldrecordCall(target, context, params, 'soldier');
+}
+
+/**
+ * Command handle for demoman world records.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
 function dwr(target, context, params) {
-  wr(target, context, params, "demoman");
-};
-async function wr(target, context, params, tf2Class = "both") {
-  var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
-    console.log(`${e}`);
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    return;
-  });
-  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
-    .then(async function (response) {
-      var wrs = await tempus.parseWR(response, tf2Class);
-      twitch.sendMessage(target, context, `@${context.username} ${mapName} ${wrs}`);
-      return;
-    })
-    .catch(function (response) {
-      if (response.statusCode == 404) {
-        console.log(`${response.error.error}`);
-        //twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
-      }
-      return;
-    });
-};
-async function mi(target, context, params) {
-  var mapName = await api.tempusSearch(params[0], "Map").catch(e => {
-    console.log(`${e}`);
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    return;
-  });
-  console.log(`Looking for: ${mapName}`);
-  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
-    .then(async function (response) {
-      var results = await tempus.parseMap(response);
-      twitch.sendMessage(target, context, `@${context.username} ${mapName} ${results}`);
-      return;
-    })
-    .catch(function (response) {
-      if (response.statusCode == 404) {
-        console.log(`${response.error.error}`);
-        //twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
-      }
-      return;
-    });
-};
-
-async function stats(target, context, params, stats = {type: `full`}){
-  playerID = await api.tempusSearch(params[0], "Player").catch(e => {
-    console.log(`${e}`);
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    return;
-  });
-  request(api.tempusGET(api.playerIDEnd + playerID + `/stats`))
-  .then(async function(response){
-    var results = await tempus.parseStats(response, stats);
-    twitch.sendMessage(target, context, `${results}`);
-  })
-  .catch(function (response){
-    console.log(response);
-    twitch.sendMessage(target, context, `@${context.username} ${response}`);
-  })
+  worldrecordCall(target, context, params, 'demoman');
 }
 
-async function demo(target, context, params){
-  var map = await api.tempusSearch(params[0], "Map").catch(e => {
-    console.log(`${e}`);
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    return;
-  });
-
-  request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
-  .then(async function(response){
-    var mapID = response;
-  })
-  .catch (function (e){
-    twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
-  })
+/**
+ * Command handle for both classes world records.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function wr(target, context, params) {
+  worldrecordCall(target, context, params, 'both');
 }
 
-async function rank(target, context, params, tf2Class = `overall`){
-
-  if (typeof params[0] === `number`) {
-    request(api.tempusGET(api.tempusGET(api.rankEnd, {limit: 1, start: pos})))
-    .then(async function(response){
-      var results = await tempus.parseRank(response);
-      twitch.sendMessage(target, context, `${results}`);
-    })
-    .catch(function (e){
-      twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    })
-  }
-  else {
-    var playerID = await api.tempusSearch(params[0], "Player").catch(e => {
-      console.log(`${e}`);
-      twitch.sendMessage(target, context, `@${context.username} ${e}`);
-      return;
-    });
-    stats (target, context, params, {type: rank, tf2Class: tf2Class, playerID: playerID});
-  }
+/**
+ * Command handle for player stats.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function stats(target, context, params) {
+  statsCall(target, context, params, {type: `full`});
 }
 
+/**
+ * Command handle for demo retrieval.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+async function demo(target, context, params) {
+  demoCall(target, context, params);
+}
+
+/**
+ * Command handle for soldier rank.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function rank(target, context, params) {
+  rankCall(target, context, params, `overall`);
+};
+
+/**
+ * Command handle for soldier rank.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
 function srank(target, context, params) {
-  rank(target, context, params, 3);
+  rankCall(target, context, params, 3);
 }
 
+/**
+ * Command handle for demoman rank.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
 function drank(target, context, params) {
-  rank(target, context, params, 4);
+  rankCall(target, context, params, 4);
 }
 
 
@@ -316,7 +305,9 @@ module.exports = {
   commandList,
   stime,
   dtime,
+  time,
   mi,
+  tier,
   vid,
   wr,
   swr,
@@ -328,7 +319,8 @@ module.exports = {
   rrb,
   rrc,
   stats,
+  demo,
   rank,
   srank,
-  drank
+  drank,
 };
