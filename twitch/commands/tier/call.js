@@ -1,7 +1,7 @@
 const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
-const parseTiers = require(`./format`).default;
+const parseTiers = require(`./format`);
 
 /**
  * Callback for map tiers.
@@ -11,17 +11,18 @@ const parseTiers = require(`./format`).default;
  * @return {void}
  */
 async function tier(target, context, params) {
-  const mapName = await api.tempusSearch(params[0], 'Map').catch((e) => {
+  await api.tempusSearch(params[0], 'Map').catch((e) => {
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
   })
-      .then(async () => {
-        request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
+      .then(async (map) => {
+        request(api.tempusGET(api.miEnd + `${map}/fullOverview`))
             .then(async function(response) {
+              console.log(response);
               const tiers = await parseTiers(response);
-              twitch.sendMessage(target, context, `@${context.username} ${tiers}`);
+              twitch.sendMessage(target, context, `@${context.username} ${map} ${tiers}`);
             })
             .catch(function(response) {
-              twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
+              twitch.sendMessage(target, context, `@${context.username} ${response}`);
             });
       });
   return;

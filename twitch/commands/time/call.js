@@ -16,13 +16,10 @@ const determineParameters = require(`./helpers`);
  * @return {void}
  */
 async function runTime(target, context, params, tf2Class = `both`, zone = `map`, zoneIndex = 1, exact = false) {
-  if (params[4] === `exact` || (params[3] === `exact` && !params[4]) || (params[2] === `exact` && !params[3])) {
+  if ((params[3] === `exact`) || (params[2] === `exact` && !params[3])) {
     exact = true;
   }
   await determineParameters(params[0], params[1], params[2])
-      .catch((e) =>{
-        twitch.sendMessage(target, context, `@${context.username} ${e}`);
-      })
       .then(async (runInfo) =>{
         const mapName = await api.tempusSearch(params[runInfo[0]], 'Map')
             .catch((e) =>{
@@ -41,8 +38,11 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
               }
             })
             .catch(function(e) {
-              console.log(e);
+              twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
             });
+      })
+      .catch((e) =>{
+        twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
       });
   return;
 }

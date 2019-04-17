@@ -1,3 +1,4 @@
+const terms = require(`./constants`);
 const lineLength = 45;
 
 /**
@@ -117,10 +118,45 @@ function formatPoints(points) {
   return stringReverse(points);
 }
 
+/**
+ * Determine which class a string is referring to.
+ * @param {string} tf2Class
+ * @return {string} Return standard string (`Soldier`, `Demoman`)
+ */
+function determineClass(tf2Class) {
+  return new Promise((resolve, reject) => {
+    if (terms.soldier.includes(tf2Class)) {
+      resolve(`soldier`);
+    } else if (terms.demo.includes(tf2Class)) {
+      resolve(`demoman`);
+    } else {
+      reject(new Error(`Couldn't resolve class parameter.`));
+    }
+  });
+}
+
+/**
+ * Return class symbol based on tf2 class numbers
+ * @param {integer} number 3, 4
+ * @return {string} Return tf2 class symbol (S, D)
+ */
+function numberToClassSymbol(number) {
+  number = Number(number);
+  if (number === 3) {
+    return `S`;
+  } else if (number === 4) {
+    return `D`;
+  } else {
+    throw new Error(`Invalid class number, cannot convert: ${number}`);
+  }
+}
+
 module.exports = {
   timePrettifier,
   addWhitespace,
   classSymbol,
   verifyNumber,
   formatPoints,
+  determineClass,
+  numberToClassSymbol,
 };
