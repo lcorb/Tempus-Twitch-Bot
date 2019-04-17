@@ -8,12 +8,12 @@ const courseTypes = [`c`, `course`];
  * @param {string} p1 First parameter
  * @param {string} p2 Second parameter
  * @param {string} p3 Third parameter (optional)
- * @param {string} tf2Class Check if tf2Class is included as the 3rd parameter (optional)
+ * @param {string} tf2ClassParameterPosition Parameter number that the class identifier is
  * @return {array} [(1 or 0), (`map`, `course`, `bonus`), zone index]
  * 1 is place
  * 0 is map
  */
-async function determineParameters(p1, p2, p3 = null, tf2Class = null) {
+async function determineParameters(p1, p2, p3 = null, tf2ClassParameterPosition = null) {
   return new Promise(async function(resolve, reject) {
     let results = [];
     if (!Number(p1) && Number(p2)) {
@@ -26,7 +26,7 @@ async function determineParameters(p1, p2, p3 = null, tf2Class = null) {
       // Order contains either 2 numbers or no numbers - could be an issue for some maps, adding map type prefix will fix as they will not be numbers
       reject(new Error(`Bad parameters.`));
     }
-    if (p3 !== null && p3 !== `exact` && tf2Class !== null && (tf2Class !== `soldier` || tf2Class !== `demoman`)) {
+    if (p3 !== null && p3 !== `exact` && tf2ClassParameterPosition !== 3) {
       const type = await readParameterRunType(p3)
           .catch((e) =>{
             reject(e);

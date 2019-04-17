@@ -12,7 +12,7 @@ function parseDemos(record) {
     }
     let expirationStatusFragment;
     const descriptionFragment = `The demo for (${utils.numberToClassSymbol(record.record_info.class)} #${record.record_info.rank})
-     ${record.player_info.name} on ${record.map_info.name}`;
+     ${record.player_info.name} on ${record.map_info.name}`
     + (record.zone_info.type === `map` ? `` : ` (${record.zone_info.type} ${record.zone_info.zoneindex})`);
     if (record.demo_info.recording) {
       expirationStatusFragment = `is in the process of recording: tempus.xyz/demos/${record.demo_info.id}`;
