@@ -12,7 +12,7 @@ function parseMap(mapObj) {
     try {
       const authors = parseAuthors(mapObj);
       const tiers = parseTiers(mapObj);
-      resolve(`${tiers[0]} ${tiers[1]} Created by: ${authors}`);
+      resolve(`${tiers} | Created by: ${authors}`);
     } catch (e) {
       reject(e);
     };

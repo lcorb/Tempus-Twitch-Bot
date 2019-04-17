@@ -29,4 +29,4 @@ async function vid(target, context, params) {
   return;
 };
 
-module.export = vid;
+module.exports = vid;

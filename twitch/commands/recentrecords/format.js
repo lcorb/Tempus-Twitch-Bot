@@ -35,4 +35,4 @@ function parseActivity(type, all = false) {
   });
 };
 
-module.export = parseActivity;
+module.exports = parseActivity;

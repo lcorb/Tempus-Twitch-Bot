@@ -2,6 +2,7 @@ const fs = require('fs');
 
 /**
  * Reads auth token from file.
+ * @access private
  * @return {string} auth token
  */
 function readAuth() {

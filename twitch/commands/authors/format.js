@@ -7,7 +7,7 @@
 function parseAuthors(mapObj, full = false) {
   const mapAuthors = [];
   if (mapObj.authors.length > 3 && !full) {
-    return `multiple authors (!authors)`;
+    return `${mapObj.authors.length} different authors (!authors)`;
   }
   for (i = 0; i < mapObj.authors.length; i++) {
     if (i > 0 && i < mapObj.authors.length - 1) {

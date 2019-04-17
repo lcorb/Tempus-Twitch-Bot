@@ -15,5 +15,5 @@ function parseVids(mapObj) {
   return vids;
 };
 
-module.export = parseVids;
+module.exports = parseVids;
 

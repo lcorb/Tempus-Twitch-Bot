@@ -22,13 +22,11 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
   await determineParameters(params[0], params[1], params[2])
       .catch((e) =>{
         twitch.sendMessage(target, context, `@${context.username} ${e}`);
-        return;
       })
       .then(async (runInfo) =>{
         const mapName = await api.tempusSearch(params[runInfo[0]], 'Map')
             .catch((e) =>{
               twitch.sendMessage(target, context, `@${context.username} ${e}`);
-              return;
             });
         const pos = (runInfo[0] === 1 ? parseInt(params[0]) : parseInt(params[1]));
         request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}${runInfo[1]}/${runInfo[2]}/records/list`, {limit: 1, start: pos}))
@@ -41,21 +39,12 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
                 const res = await parseTime(response, tf2Class, pos, runInfo[1], mapName, exact);
                 twitch.sendMessage(target, context, `@${context.username} ${res}`);
               }
-              return;
             })
-            .catch(function(response) {
-              try {
-                if (response.error.error === undefined) {
-                  twitch.sendMessage(target, context, `@${context.username} ${response}`);
-                } else {
-                  twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
-                }
-              } catch (e) {
-                twitch.sendMessage(target, context, `@${context.username} Fatal error.`);
-              }
-              return;
+            .catch(function(e) {
+              console.log(e);
             });
       });
+  return;
 }
 
-module.export = runTime;
+module.exports = runTime;

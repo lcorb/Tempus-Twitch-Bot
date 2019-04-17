@@ -16,4 +16,4 @@ async function rr(target, context, type=`map_wrs`) {
   });
 };
 
-module.export = rr;
+module.exports = rr;

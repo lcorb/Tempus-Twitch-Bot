@@ -1,4 +1,4 @@
-const utils = require('../utils.js');
+const utils = require('../../../utils');
 
 /**
  * Formats zone/class time into string.
@@ -33,4 +33,4 @@ function parseTime(mapObj, tf2Class = 'both', position = 1, zone = 'map', map = 
   });
 }
 
-module.export = parseTime;
+module.exports = parseTime;

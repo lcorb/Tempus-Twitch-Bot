@@ -120,9 +120,7 @@ function formatPoints(points) {
 module.exports = {
   timePrettifier,
   addWhitespace,
-  determineParameters,
   classSymbol,
-  evaluateStats,
   verifyNumber,
   formatPoints,
 };

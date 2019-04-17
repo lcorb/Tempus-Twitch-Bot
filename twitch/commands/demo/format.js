@@ -10,5 +10,5 @@ function parseTiers(mapObj) {
   return tiers.join(` | `);
 };
 
-module.export = parseTiers;
+module.exports = parseTiers;
 

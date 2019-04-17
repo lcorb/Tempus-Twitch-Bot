@@ -1,7 +1,7 @@
 const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
-const parseTiers = require(`./format`);
+const parseTiers = require(`./format`).default;
 
 /**
  * Callback for map tiers.
@@ -27,4 +27,4 @@ async function tier(target, context, params) {
   return;
 };
 
-module.export = tier;
+module.exports = tier;

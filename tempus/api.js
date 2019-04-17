@@ -11,11 +11,11 @@ const demoEnd = `/demos/id/`;
 
 /**
  * Formats Tempus API queries.
- * @param {boolean} query Query string
  * @param {string} endPoint Endpoint string
- * @return {object} Return parameters object
+ * @param {boolean} query Query string
+ * @return {string} Return parameters string
  */
-function tempusGET(query, endPoint) {
+function tempusGET(endPoint, query) {
   return params = {
     baseUrl: tempusBase,
     headers: {

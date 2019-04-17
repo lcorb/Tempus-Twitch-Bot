@@ -11,18 +11,19 @@ const parseMap = require(`./format`);
  * @return {void}
  */
 async function mi(target, context, params) {
-  const mapName = await api.tempusSearch(params[0], 'Map').catch((e) => {
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
-    return;
-  })
-      .then(async () =>{
-        request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
+  await api.tempusSearch(params[0], 'Map')
+      .catch((e) => {
+        twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
+        return;
+      })
+      .then(async (map) =>{
+        request(api.tempusGET(api.miEnd + `${map}/fullOverview`))
             .then(async function(response) {
               const results = await parseMap(response);
-              twitch.sendMessage(target, context, `@${context.username} ${mapName} ${results}`);
+              twitch.sendMessage(target, context, `@${context.username} ${map} ${results}`);
             })
-            .catch(function(response) {
-              twitch.sendMessage(target, context, `@${context.username} ${response.error.error}`);
+            .catch(function(e) {
+              twitch.sendMessage(target, context, `@${context.username} ${e}`);
             });
       });
   return;

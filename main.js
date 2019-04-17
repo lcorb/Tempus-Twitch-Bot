@@ -1,3 +1,3 @@
-const twitch = require(`./client/iniy`);
+const twitch = require(`./client/init`);
 
 twitch.connect();

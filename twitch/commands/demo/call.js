@@ -26,4 +26,4 @@ async function demo(target, context, params) {
   return;
 }
 
-module.export = demo;
+module.exports = demo;
