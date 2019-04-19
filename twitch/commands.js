@@ -43,7 +43,7 @@ const commandList = {
   },
   authors: {
     usage: `<map>`,
-    alias: [`creator`, `mapper`],
+    alias: [`creator`, `mapper`, `author`, `creators`],
   },
   stats: {
     usage: `<player>`,

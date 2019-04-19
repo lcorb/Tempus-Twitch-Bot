@@ -1,6 +1,6 @@
 /**
  * Formats authors into string.
- * @param {object} mapObj User who initiated command.
+ * @param {object} mapObj Map response object
  * @param {boolean} full Used to determine if command should return full list of authors
  * @return {string} Return string of authors
  */

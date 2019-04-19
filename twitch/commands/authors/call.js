@@ -11,17 +11,17 @@ const parseAuthors = require(`./format`);
  * @return {void}
  */
 async function authors(target, context, params) {
-  const mapName = await api.tempusSearch(params[0], 'Map').catch((e) => {
+  await api.tempusSearch(params[0], 'Map').catch((e) => {
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
   })
-      .then(async () => {
+      .then(async (mapName) => {
         request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
             .then(async function(response) {
               const authors = await parseAuthors(response, true);
               twitch.sendMessage(target, context, `@${context.username} ${mapName} | Created by: ${authors}`);
             })
-            .catch(function(response) {
-              twitch.sendMessage(target, context, `@${context.username} ${response}`);
+            .catch(function(e) {
+              twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
             });
       });
   return;

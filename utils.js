@@ -3,7 +3,7 @@ const lineLength = 45;
 
 /**
  * Formats seconds into hours:minutes:seconds.
- * @param {string} time Seconds
+ * @param {int} time Seconds
  * @return {string}
  */
 function timePrettifier(time) {
@@ -18,9 +18,9 @@ function timePrettifier(time) {
 
 /**
  * Final formatting pass to decide whether to include hours & minutes or append `s` to seconds.
- * @param {string} seconds
- * @param {string} minutes
- * @param {string} hours
+ * @param {int} seconds
+ * @param {int} minutes
+ * @param {int} hours
  * @return {string}
  */
 function timeReturn(seconds, minutes, hours) {
