@@ -10,7 +10,7 @@ function parseVids(mapObj) {
       mapObj.videos['demoman'] ? vids.push(`Demoman: youtu.be/` + mapObj.videos['demoman']): {};
       vids = vids.join(` | `);
   } else {
-    return `No videos found.`;
+    return new Error(`No videos found.`);
   }
   return vids;
 };

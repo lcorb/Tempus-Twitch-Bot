@@ -28,8 +28,9 @@ async function parseStats(playerObj, stats = {type: `full`}) {
         if (stats.tf2Class === `overall`) {
           resolve(`${name} is rank ${sRank} as Soldier (${utils.formatPoints(sPoints)}) &` +
                                   `${dRank} as Demoman (${utils.formatPoints(dPoints)}).`);
+        } else {
+          resolve(`${name} is rank ${playerObj.class_rank_info[tf2Class].rank} as ` + tf2Class === 3 ? `Soldier.` : `Demoman.`);
         }
-        resolve(`${name} is rank ${playerObj.class_rank_info[tf2Class].rank} as ` + tf2Class === 3 ? `Soldier.` : `Demoman.`);
       }
 
       await evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones)

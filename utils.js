@@ -155,6 +155,7 @@ module.exports = {
   timePrettifier,
   addWhitespace,
   classSymbol,
+  truncate,
   verifyNumber,
   formatPoints,
   determineClass,

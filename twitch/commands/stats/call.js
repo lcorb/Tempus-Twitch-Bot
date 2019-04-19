@@ -12,10 +12,10 @@ const parseStats = require(`./format`);
  * @return {void}
  */
 async function stats(target, context, params, stats = {type: `full`}) {
-  const playerID = await api.tempusSearch(params[0], 'Player').catch((e) => {
+  await api.tempusSearch(params[0], 'Player').catch((e) => {
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
   })
-      .then(async () =>{
+      .then(async (playerID) =>{
         request(api.tempusGET(api.playerIDEnd + playerID + `/stats`))
             .then(async function(response) {
               const results = await parseStats(response, stats);
