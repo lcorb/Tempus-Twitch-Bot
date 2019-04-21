@@ -26,15 +26,15 @@ async function evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, 
 /**
  * Generates sentence for a players rank.
  * @access private
- * @param {int} sPoints Points for Soldier
- * @param {int} dPoints Points for Demoman
  * @param {int} sRank Rank for Soldier
  * @param {int} dRank Rank for Demoman
  * @param {int} overallRank Overall rank
+ * @param {int} sPoints Points for Soldier
+ * @param {int} dPoints Points for Demoman
  * @param {object} stats Stats object containing information for what information to retrieve
  * @return {string} Return string detailing stats
  */
-function generateRankSentence(sPoints, dPoints, sRank, dRank, overallRank) {
+function generateRankSentence(sRank, dRank, overallRank, sPoints, dPoints) {
   let firstFragment = ``;
   let secondFragment = false;
   if (sRank < dRank) {
@@ -59,7 +59,8 @@ function generateRankSentence(sPoints, dPoints, sRank, dRank, overallRank) {
  * @param {int} dPoints Demoman points
  * @return {string} Return string detaling rank and points
  */
-function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints= 0) {
+function rankThresholdCheck(number, tf2Class = `Soldier`, sPoints = 0, dPoints = 0) {
+  console.log(sPoints, dPoints);
   sPoints = utils.formatPoints(sPoints);
   dPoints = utils.formatPoints(dPoints);
   const pointFragment = (tf2Class === `Soldier` ? (tf2Class === `Demoman` ? `with ${sPoints} & ${dPoints} respectively` : `with ${sPoints} points`) : `with ${dPoints} points`);

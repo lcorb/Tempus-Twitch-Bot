@@ -154,7 +154,7 @@ function tier(target, context, params) {
  * @return {void}
  */
 function rr(target, context, params) {
-  recentrecordsCall(target, context, params, `map_wrs`);
+  recentrecordsCall(target, context, `map_wrs`);
 }
 
 /**
@@ -165,7 +165,7 @@ function rr(target, context, params) {
  * @return {void}
  */
 function rrm(target, context, params) {
-  recentrecordsCall(target, context, params, `map_wrs`);
+  recentrecordsCall(target, context, `map_wrs`);
 }
 
 /**
@@ -176,7 +176,7 @@ function rrm(target, context, params) {
  * @return {void}
  */
 function rrtt(target, context, params) {
-  recentrecordsCall(target, context, params, `map_tops`);
+  recentrecordsCall(target, context, `map_tops`);
 }
 
 /**
@@ -187,7 +187,7 @@ function rrtt(target, context, params) {
  * @return {void}
  */
 function rrc(target, context, params) {
-  recentrecordsCall(target, context, params, `course_wrs`);
+  recentrecordsCall(target, context, `course_wrs`);
 }
 
 /**
@@ -198,7 +198,7 @@ function rrc(target, context, params) {
  * @return {void}
  */
 function rrb(target, context, params) {
-  recentrecordsCall(target, context, params, `bonus_wrs`);
+  recentrecordsCall(target, context, `bonus_wrs`);
 }
 
 /**

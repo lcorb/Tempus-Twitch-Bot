@@ -8,7 +8,7 @@ const parseActivity = require(`./format`);
  * @param {string} type Type of run to retrieve (map_tops, course_wrs, map_wrs, bonus_wrs)
  * @return {void}
  */
-async function rr(target, context, type=`map_wrs`) {
+async function rr(target, context, type = `map_wrs`) {
   const activity = await parseActivity(type);
   // Split into multiple messages due to formatting issues
   activity.forEach((r) =>{
