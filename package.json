@@ -17,8 +17,7 @@
   },
   "homepage": "https://github.com/lcorb/Tempus-Twitch-Bot#readme",
   "dependencies": {
-    "request-promise": "^4.2.4",
-    "util": "^0.11.1"
+    "request-promise": "^4.2.4"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
