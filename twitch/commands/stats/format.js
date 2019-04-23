@@ -34,12 +34,12 @@ async function parseStats(playerObj, stats = {type: `full`}) {
         }
       } else if (stats.type === `full`) {
         await evaluateStats(sRank, dRank, sPoints, dPoints, overallRank, tops, wrs, pr, totalZones)
-        .then((r) =>{
-          resolve((countryCode === null ? `` : `[${countryCode}] `) + `${name} ` + r);
-        })
-        .catch((e) =>{
-          reject(e);
-        })
+            .then((r) =>{
+              resolve((countryCode === null ? `` : `[${countryCode}] `) + `${name} ` + r);
+            })
+            .catch((e) =>{
+              reject(e);
+            });
       }
     }
   });

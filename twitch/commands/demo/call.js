@@ -1,5 +1,4 @@
 /* eslint-disable no-var */
-const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
 const determineParameters = require(`../time/helpers`);

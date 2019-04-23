@@ -1,4 +1,3 @@
-const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
 const parseVids = require(`./format`);
@@ -15,7 +14,7 @@ async function vid(target, context, params) {
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
   })
       .then(async (mapName) => {
-        request(api.tempusGET(api.miEnd + `${mapName}/fullOverview`))
+        api.fetchMap(mapName)
             .then(async function(response) {
               vids = await parseVids(response);
               twitch.sendMessage(target, context, `@${context.username} ${mapName} | ${vids}`);

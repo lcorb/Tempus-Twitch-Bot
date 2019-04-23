@@ -1,4 +1,3 @@
-const request = require('request-promise');
 const api = require(`../../../tempus/api`);
 const utils = require(`../../../utils`);
 
@@ -10,7 +9,7 @@ const utils = require(`../../../utils`);
  */
 function parseActivity(type, all = false) {
   return new Promise(function(resolve, reject) {
-    request(api.tempusGET(api.activityEnd))
+    api.fetchActivity()
         .then(async function(activityObj) {
           const response = [];
           // up to 20 recent wrs

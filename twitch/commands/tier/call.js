@@ -1,4 +1,3 @@
-const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
 const parseTiers = require(`./format`);
@@ -15,9 +14,8 @@ async function tier(target, context, params) {
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
   })
       .then(async (map) => {
-        request(api.tempusGET(api.miEnd + `${map}/fullOverview`))
+        api.fetchMap(map)
             .then(async function(response) {
-              console.log(response);
               const tiers = await parseTiers(response);
               twitch.sendMessage(target, context, `@${context.username} ${map} ${tiers}`);
             })

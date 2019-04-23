@@ -1,4 +1,3 @@
-const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
 const parseMap = require(`./format`);
@@ -17,13 +16,13 @@ async function mi(target, context, params) {
         return;
       })
       .then(async (map) =>{
-        request(api.tempusGET(api.miEnd + `${map}/fullOverview`))
+        api.fetchMap(map)
             .then(async function(response) {
               const results = await parseMap(response);
               twitch.sendMessage(target, context, `@${context.username} ${map} ${results}`);
             })
             .catch(function(e) {
-              twitch.sendMessage(target, context, `@${context.username} ${e}`);
+              twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
             });
       });
   return;

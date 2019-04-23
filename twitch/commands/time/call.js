@@ -1,4 +1,3 @@
-const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
 const parseTime = require(`./format`);
@@ -29,7 +28,6 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
         if (pos < 1) {
           throw new Error(`Can't have a rank less than 1.`);
         }
-        // request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}${runInfo[1]}/${runInfo[2]}/records/list`, {limit: 1, start: pos}))
         api.fetchTime(mapName, runInfo[1], runInfo[2], pos)
             .then(async function(response) {
               if (response.results.soldier.length === 0 && response.results.demoman.length === 0) {
@@ -43,7 +41,6 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
             });
       })
       .catch((e) =>{
-        console.log(e);
         twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
       });
   return;

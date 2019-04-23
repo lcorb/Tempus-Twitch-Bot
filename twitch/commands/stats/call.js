@@ -1,4 +1,3 @@
-const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
 const parseStats = require(`./format`);
@@ -16,7 +15,7 @@ async function stats(target, context, params, stats = {type: `full`}) {
     twitch.sendMessage(target, context, `@${context.username} ${e}`);
   })
       .then(async (playerID) =>{
-        request(api.tempusGET(api.playerIDEnd + playerID + `/stats`))
+        api.fetchPlayerStats(playerID)
             .then(async function(response) {
               const results = await parseStats(response, stats);
               twitch.sendMessage(target, context, `${results}`);

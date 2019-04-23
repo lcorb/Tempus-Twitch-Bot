@@ -23,13 +23,13 @@ async function rank(target, context, params, tf2Class = `overall`) {
         });
   } else {
     await api.tempusSearch(params[0], 'Player')
-    .then ((response) => {
-      parseStats(target, context, params, {type: rank, tf2Class: tf2Class, playerID: response});
-    })
-    .catch((e) => {
-      twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
-      return;
-    });
+        .then((response) => {
+          parseStats(target, context, params, {type: rank, tf2Class: tf2Class, playerID: response});
+        })
+        .catch((e) => {
+          twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
+          return;
+        });
   }
 }
 
