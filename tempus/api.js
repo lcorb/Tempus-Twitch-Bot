@@ -83,7 +83,7 @@ function fetchRecord(recordid) {
  * @return {object} Response rank info object
  */
 function fetchRank(rank, type) {
-  return request(tempusGET(tempusGET(`/rank/` + (type === `overall` ? `${type}` : `class/${type}`), {limit: 1, start: rank})));
+  return request(tempusGET(`/ranks/` + (type === `overall` ? `${type}` : `class/${type}`), {limit: 1, start: rank}));
 }
 
 /**
