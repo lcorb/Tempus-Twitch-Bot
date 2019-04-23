@@ -24,6 +24,7 @@ async function determineParameters(p1, p2, p3 = null, tf2ClassParameterPosition 
       results.push(1);
     } else {
       // Order contains either 2 numbers or no numbers - could be an issue for some maps, adding map type prefix will fix as they will not be numbers
+      console.log(p1, p2);
       reject(new Error(`Bad parameters.`));
     }
     if (p3 !== null && p3 !== `exact` && tf2ClassParameterPosition !== 3) {
@@ -46,20 +47,28 @@ async function determineParameters(p1, p2, p3 = null, tf2ClassParameterPosition 
  * Should be in the format of `b` or `c` followed by a natural non-zero number
  * @access private
  * @param {string} p Parameter
- * @return {void}
+ * @return {array} split zone type and index
  */
 async function readParameterRunType(p) {
-  // Match numbers and remove them
-  let type = p.replace(/[0-9]/g, '');
-  // Match letters and remove them
-  let number = p.replace(/[\D]/g, '');
-  type = await determineRunType(type);
-  number = await utils.verifyNumber(number);
-  if (type === undefined || number === undefined || type instanceof Error || number instanceof Error) {
-    return null;
-  } else {
-    return [type, number];
-  }
+  return new Promise(async (resolve, reject) => {
+    // Match numbers and remove them
+    let type = p.replace(/[0-9]/g, '');
+    // Match letters and remove them
+    let number = p.replace(/[\D]/g, '');
+    type = await determineRunType(type)
+        .catch(() => {
+          reject(new Error(`Invalid zone type parameter.`));
+        });
+    number = await utils.verifyNumber(number)
+        .catch(() => {
+          reject(new Error(`Invalid zone index parameter.`));
+        });
+    if (type === undefined || number === undefined || type instanceof Error || number instanceof Error) {
+      reject(new Error(`Couldn't resolve zone parameter.`));
+    } else {
+      resolve([type, number]);
+    }
+  });
 }
 /**
  * Used to determine what type of zone a parameter is.

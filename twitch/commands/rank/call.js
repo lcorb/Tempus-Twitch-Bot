@@ -1,10 +1,10 @@
 const request = require('request-promise');
 const twitch = require(`../../message`);
 const api = require(`../../../tempus/api`);
-const parseRank = require(`./format`);
+const parseStats = require(`../stats/format`);
 
 /**
- * Callback for map authors.
+ * Callback for player rank.
  * @param {string} target User who initiated command.
  * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
  * @param {array} params Parsed parameters of command.
@@ -19,15 +19,17 @@ async function rank(target, context, params, tf2Class = `overall`) {
           twitch.sendMessage(target, context, `${results}`);
         })
         .catch(function(e) {
-          twitch.sendMessage(target, context, `@${context.username} ${e}`);
+          twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
         });
   } else {
-    const playerID = await api.tempusSearch(params[0], 'Player').catch((e) => {
-      console.log(`${e}`);
-      twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    await api.tempusSearch(params[0], 'Player')
+    .then ((response) => {
+      parseStats(target, context, params, {type: rank, tf2Class: tf2Class, playerID: response});
+    })
+    .catch((e) => {
+      twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
       return;
     });
-    stats(target, context, params, {type: rank, tf2Class: tf2Class, playerID: playerID});
   }
 }
 

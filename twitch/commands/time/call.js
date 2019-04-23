@@ -20,7 +20,7 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
     exact = true;
   }
   await determineParameters(params[0], params[1], params[2])
-      .then(async (runInfo) =>{
+      .then(async (runInfo) => {
         const mapName = await api.tempusSearch(params[runInfo[0]], 'Map')
             .catch((e) =>{
               twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
@@ -29,7 +29,8 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
         if (pos < 1) {
           throw new Error(`Can't have a rank less than 1.`);
         }
-        request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}${runInfo[1]}/${runInfo[2]}/records/list`, {limit: 1, start: pos}))
+        // request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}${runInfo[1]}/${runInfo[2]}/records/list`, {limit: 1, start: pos}))
+        api.fetchTime(mapName, runInfo[1], runInfo[2], pos)
             .then(async function(response) {
               if (response.results.soldier.length === 0 && response.results.demoman.length === 0) {
                 twitch.sendMessage(target, context, `@${context.username} No runs found.`);
@@ -42,6 +43,7 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
             });
       })
       .catch((e) =>{
+        console.log(e);
         twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
       });
   return;

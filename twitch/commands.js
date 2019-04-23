@@ -75,7 +75,7 @@ const commandList = {
     mod: true,
   },
   demo: {
-    usage: `<map>`,
+    usage: `<map> <position> <zone|blank>`,
     alias: [`stv`, `demos`, `sourcetv`],
   },
 };

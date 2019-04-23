@@ -77,7 +77,7 @@ function verifyNumber(value) {
     if (value !== null) {
       resolve(value);
     } else {
-      reject(value);
+      reject(new Error(`Invalid number.`));
     }
   });
 }
@@ -121,7 +121,7 @@ function formatPoints(points) {
 /**
  * Determine which class a string is referring to.
  * @param {string} tf2Class
- * @return {string} Return standard string (`Soldier`, `Demoman`)
+ * @return {string} Return standard string (`soldier`, `demoman`)
  */
 function determineClass(tf2Class) {
   return new Promise((resolve, reject) => {

@@ -10,15 +10,14 @@
     "type": "git",
     "url": "git+https://github.com/lcorb/Tempus-Twitch-Bot.git"
   },
-  "author": "Liam Corbett",
+  "author": "Liam",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/lcorb/Tempus-Twitch-Bot/issues"
   },
   "homepage": "https://github.com/lcorb/Tempus-Twitch-Bot#readme",
   "dependencies": {
-    "request-promise": "^4.2.4",
-    "util": "^0.11.1"
+    "request-promise": "^4.2.4"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
