@@ -1,4 +1,5 @@
 const request = require('request-promise');
+const global = require(`../client/init`);
 
 /**
  * Formats Tempus API queries.
@@ -47,7 +48,11 @@ function tempusSearch(query, type) {
  * @return {object} Response map object
  */
 function fetchMap(map) {
-  return request(tempusGET(`/maps/name/${map}/fullOverview`));
+  if (global.cache.check(`fetchMap`, [map])) {
+    return global.cache.requests.data;
+  } else {
+    return request(tempusGET(`/maps/name/${map}/fullOverview`));
+  }
 }
 
 /**
@@ -56,7 +61,11 @@ function fetchMap(map) {
  * @return {object} Response stats object
  */
 function fetchPlayerStats(playerid) {
-  return request(tempusGET(`/players/id/${playerid}/stats`));
+  if (global.cache.check(`fetchStats`, [playerid])) {
+    return global.cache.requests.data;
+  } else {
+    return request(tempusGET(`/players/id/${playerid}/stats`));
+  }
 }
 
 /**
@@ -64,7 +73,11 @@ function fetchPlayerStats(playerid) {
  * @return {object} Response activity object
  */
 function fetchActivity() {
-  return request(tempusGET(`/activity`));
+  if (global.cache.check(`fetchActivity`)) {
+    return global.cache.requests.data;
+  } else {
+    return request(tempusGET(`/activity`));
+  }
 }
 
 /**
@@ -73,7 +86,11 @@ function fetchActivity() {
  * @return {object} Response record info object
  */
 function fetchRecord(recordid) {
-  return request(tempusGET(`records/id/${recordid}/overview`));
+  if (global.cache.check(`fetchMap`, [map])) {
+    return global.cache.requests.data;
+  } else {
+    return request(tempusGET(`records/id/${recordid}/overview`));
+  }
 }
 
 /**
@@ -83,7 +100,11 @@ function fetchRecord(recordid) {
  * @return {object} Response rank info object
  */
 function fetchRank(rank, type) {
-  return request(tempusGET(`/ranks/` + (type === `overall` ? `${type}` : `class/${type}`), {limit: 1, start: rank}));
+  if (global.cache.check(`fetchMap`, [map])) {
+    return global.cache.requests.data;
+  } else {
+    return request(tempusGET(`/ranks/` + (type === `overall` ? `${type}` : `class/${type}`), {limit: 1, start: rank}));
+  }
 }
 
 /**
@@ -95,7 +116,23 @@ function fetchRank(rank, type) {
  * @return {object} Response time info object
  */
 function fetchTime(map, zone, zoneindex, position) {
-  return request(tempusGET(`/maps/name/${map}/zones/typeindex/${zone}/${zoneindex}/records/list`, {limit: 1, start: position}));
+  if (global.cache.check(`fetchMap`, [map])) {
+    return global.cache.requests.data;
+  } else {
+    return request(tempusGET(`/maps/name/${map}/zones/typeindex/${zone}/${zoneindex}/records/list`, {limit: 1, start: position}));
+  }
+}
+
+/**
+ * Retrieves Tempus server info.
+ * @return {object} Response time info object
+ */
+function fetchServerStatus() {
+  if (global.cache.check(`fetchMap`, [map])) {
+    return global.cache.requests.data;
+  } else {
+    return request(tempusGET(`servers/statusList`));
+  }
 }
 
 module.exports = {
@@ -106,4 +143,5 @@ module.exports = {
   fetchRecord,
   fetchRank,
   fetchTime,
+  fetchServerStatus,
 };

@@ -151,6 +151,27 @@ function numberToClassSymbol(number) {
   }
 }
 
+/**
+ * Determine if two arrays are equal (all items are exactly equal)
+ * @param {array} array1
+ * @param {array} array2
+ * @return {boolean}
+ */
+function arraysAreEqual(array1, array2) {
+  if (!array1 && !array2) {
+    return false;
+  } else if (array1.length !== array2.length) {
+    return false;
+  } else {
+    array1.forEach((v, i) => {
+      if (v !== array2[i]) {
+        return false;
+      }
+    });
+  }
+  return true;
+}
+
 module.exports = {
   timePrettifier,
   addWhitespace,
@@ -160,4 +181,5 @@ module.exports = {
   formatPoints,
   determineClass,
   numberToClassSymbol,
+  arraysAreEqual,
 };

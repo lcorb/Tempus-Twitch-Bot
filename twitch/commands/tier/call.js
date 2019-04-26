@@ -5,7 +5,7 @@ const parseTiers = require(`./format`);
 /**
  * Callback for map tiers.
  * @param {string} target User who initiated command.
- * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.).
  * @param {array} params Parsed parameters of command.
  * @return {void}
  */

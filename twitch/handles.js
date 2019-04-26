@@ -8,7 +8,6 @@ const commandPrefix = '!';
  * @param {object} context
  * @param {string} msg
  * @param {boolean} self
- * @return {void}
  */
 function onMessageHandler(target, context, msg, self) {
   if (self) {
@@ -62,7 +61,6 @@ function onMessageHandler(target, context, msg, self) {
  * Handle for OnConnected event.
  * @param {string} address
  * @param {string} port
- * @return {void}
  */
 function onConnectedHandler(address, port) {
   console.log(`Connected to ${address}:${port}`);
@@ -71,11 +69,10 @@ function onConnectedHandler(address, port) {
 /**
  * Handle for OnDisconnected event.
  * @param {string} reason
- * @return {void}
  */
 function onDisconnectedHandler(reason) {
   console.log(`Disconnected: ${reason}`);
-  process.exit(5);
+  console.log(`Reconnecting...`);
 }
 
 module.exports = {

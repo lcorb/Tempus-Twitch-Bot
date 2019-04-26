@@ -8,6 +8,7 @@ const timeCall = require(`./commands/time/call`);
 const vidCall = require(`./commands/vid/call`);
 const worldrecordCall = require(`./commands/worldrecord/call`);
 const demoCall = require(`./commands/demo/call`);
+const serverCall = require(`./commands/servers/call`);
 
 const commandList = {
   stime: {
@@ -77,6 +78,9 @@ const commandList = {
   demo: {
     usage: `<map> <position> <zone|blank>`,
     alias: [`stv`, `demos`, `sourcetv`],
+  },
+  server: {
+    alias: [`servers`, `status`, `tempus`, `join`],
   },
 };
 
@@ -300,6 +304,17 @@ function drank(target, context, params) {
   rankCall(target, context, params, 4);
 }
 
+/**
+ * Command handle for server status.
+ * @param {string} target User who initiated command.
+ * @param {object} context Userstate object, describes a user (moderator, follow status etc.)
+ * @param {array} params Parsed parameters of command.
+ * @return {void}
+ */
+function server(target, context, params) {
+  serverCall(target, context, params);
+}
+
 
 module.exports = {
   commandList,
@@ -323,4 +338,5 @@ module.exports = {
   rank,
   srank,
   drank,
+  server,
 };

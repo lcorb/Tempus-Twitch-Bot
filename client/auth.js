@@ -23,6 +23,10 @@ async function auth() {
     console.log(`Fatal error : ${e}`);
   });
   return {
+    connection: {
+      reconnect: true,
+      reconnectDecay: 0,
+    },
     identity: {
       username: `TempusStats`,
       password: 'oauth:' + `${auth}`,
