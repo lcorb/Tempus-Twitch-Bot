@@ -1,5 +1,12 @@
 const request = require('request-promise');
-const global = require(`../client/init`);
+const APICache = require(`../cache/cache`);
+
+/**
+ * Create empty global cache
+ */
+const cache = new APICache;
+cache.addAutoCache(fetchActivity, fetchActivity());
+cache.addAutoCache(fetchServerStatus, fetchServerStatus());
 
 /**
  * Formats Tempus API queries.
@@ -48,10 +55,13 @@ function tempusSearch(query, type) {
  * @return {object} Response map object
  */
 function fetchMap(map) {
-  if (global.cache.check(`fetchMap`, [map])) {
-    return global.cache.requests.data;
+  const cacheResult = cache.check(`fetchMap`, map);
+  if (cacheResult) {
+    return cacheResult;
   } else {
-    return request(tempusGET(`/maps/name/${map}/fullOverview`));
+    const data = request(tempusGET(`/maps/name/${map}/fullOverview`));
+    cache.add(`fetchMap`, data, map);
+    return data;
   }
 }
 
@@ -61,23 +71,30 @@ function fetchMap(map) {
  * @return {object} Response stats object
  */
 function fetchPlayerStats(playerid) {
-  if (global.cache.check(`fetchStats`, [playerid])) {
-    return global.cache.requests.data;
+  const cacheResult = cache.check(`fetchPlayerStats`, playerid);
+  if (cacheResult) {
+    return cacheResult;
   } else {
-    return request(tempusGET(`/players/id/${playerid}/stats`));
+    const data = request(tempusGET(`/players/id/${playerid}/stats`));
+    cache.add(`fetchMap`, data, map);
+    return data;
   }
 }
 
 /**
  * Retrieves Tempus activity object.
+ * @param {boolean} caching Whether we are currently refreshing cache or not
  * @return {object} Response activity object
  */
-function fetchActivity() {
-  if (global.cache.check(`fetchActivity`)) {
-    return global.cache.requests.data;
-  } else {
-    return request(tempusGET(`/activity`));
+function fetchActivity(caching) {
+  if (!caching) {
+    const cacheResult = cache.checkAutoCache(`fetchActivity`);
+    console.log(cacheResult);
+    if (cacheResult) {
+      return cacheResult;
+    }
   }
+  return request(tempusGET(`/activity`));
 }
 
 /**
@@ -86,10 +103,13 @@ function fetchActivity() {
  * @return {object} Response record info object
  */
 function fetchRecord(recordid) {
-  if (global.cache.check(`fetchMap`, [map])) {
-    return global.cache.requests.data;
+  const cacheResult = cache.check(`fetchRecord`, recordid);
+  if (cacheResult) {
+    return cacheResult;
   } else {
-    return request(tempusGET(`records/id/${recordid}/overview`));
+    const data = request(tempusGET(`records/id/${recordid}/overview`));
+    cache.add(`fetchMap`, data, map);
+    return data;
   }
 }
 
@@ -100,10 +120,13 @@ function fetchRecord(recordid) {
  * @return {object} Response rank info object
  */
 function fetchRank(rank, type) {
-  if (global.cache.check(`fetchMap`, [map])) {
-    return global.cache.requests.data;
+  const cacheResult = cache.check(`fetchRank`, rank, type);
+  if (cacheResult) {
+    return cacheResult;
   } else {
-    return request(tempusGET(`/ranks/` + (type === `overall` ? `${type}` : `class/${type}`), {limit: 1, start: rank}));
+    const data = request(tempusGET(`/ranks/` + (type === `overall` ? `${type}` : `class/${type}`), {limit: 1, start: rank}));
+    cache.add(`fetchMap`, data, map);
+    return data;
   }
 }
 
@@ -116,23 +139,30 @@ function fetchRank(rank, type) {
  * @return {object} Response time info object
  */
 function fetchTime(map, zone, zoneindex, position) {
-  if (global.cache.check(`fetchMap`, [map])) {
-    return global.cache.requests.data;
+  const cacheResult = cache.check(`fetchTime`, map, zone, zoneindex, position);
+  if (cacheResult) {
+    return cacheResult;
   } else {
-    return request(tempusGET(`/maps/name/${map}/zones/typeindex/${zone}/${zoneindex}/records/list`, {limit: 1, start: position}));
+    const data = request(tempusGET(`/maps/name/${map}/zones/typeindex/${zone}/${zoneindex}/records/list`, {limit: 1, start: position}));
+    cache.add(`fetchMap`, data, map);
+    return data;
   }
 }
 
 /**
  * Retrieves Tempus server info.
+ * @param {boolean} caching Whether we are currently refreshing cache or not
  * @return {object} Response time info object
  */
-function fetchServerStatus() {
-  if (global.cache.check(`fetchMap`, [map])) {
-    return global.cache.requests.data;
-  } else {
-    return request(tempusGET(`servers/statusList`));
+function fetchServerStatus(caching) {
+  if (!caching) {
+    const cacheResult = cache.checkAutoCache(`fetchServerStatus`);
+    console.log(cacheResult);
+    if (cacheResult) {
+      return cacheResult;
+    }
   }
+  return request(tempusGET(`servers/statusList`));
 }
 
 module.exports = {

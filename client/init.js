@@ -1,12 +1,6 @@
 const auth = require('./auth.js');
 const tmi = require('tmi.js');
 const twitch = require('../twitch/handles');
-const APICache = require(`../cache/cache`);
-
-/**
- * Create empty global cache
- */
-const cache = new APICache;
 
 /**
  * Initialise client and events, connect to twitch.
@@ -23,6 +17,5 @@ async function connect() {
 }
 
 module.exports = {
-  cache,
   connect,
 };

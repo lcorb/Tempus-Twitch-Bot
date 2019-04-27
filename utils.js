@@ -158,8 +158,9 @@ function numberToClassSymbol(number) {
  * @return {boolean}
  */
 function arraysAreEqual(array1, array2) {
+  // Arrays are empty, but they are still equal!
   if (!array1 && !array2) {
-    return false;
+    return true;
   } else if (array1.length !== array2.length) {
     return false;
   } else {
