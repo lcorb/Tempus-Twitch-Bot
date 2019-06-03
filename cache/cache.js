@@ -13,7 +13,7 @@ class APICache {
     this.autoCacheIntervalInMs = 60000;
     this.requests = [];
     this.capacity = 2;
-    setInterval(this.refreshAutoCache.bind(this), this.autoCacheIntervalInMs);
+    // setInterval(this.refreshAutoCache.bind(this), this.autoCacheIntervalInMs);
   }
 
   /**
