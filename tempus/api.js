@@ -1,12 +1,12 @@
 const request = require('request-promise');
-const APICache = require(`../cache/cache`);
+// const APICache = require(`../cache/cache`);
 
 /**
  * Create empty global cache
  */
-const cache = new APICache;
-cache.addAutoCache(fetchActivity, fetchActivity());
-cache.addAutoCache(fetchServerStatus, fetchServerStatus());
+// const cache = new APICache;
+// cache.addAutoCache(fetchActivity, fetchActivity());
+// cache.addAutoCache(fetchServerStatus, fetchServerStatus());
 
 /**
  * Formats Tempus API queries.
@@ -55,14 +55,14 @@ function tempusSearch(query, type) {
  * @return {object} Response map object
  */
 function fetchMap(map) {
-  const cacheResult = cache.check(`fetchMap`, map);
-  if (cacheResult) {
-    return cacheResult;
-  } else {
-    const data = request(tempusGET(`/maps/name/${map}/fullOverview`));
-    // cache.add(`fetchMap`, data, map);
-    return data;
-  }
+  // const cacheResult = cache.check(`fetchMap`, map);
+  // if (cacheResult) {
+  //   return cacheResult;
+  // } else {
+  const data = request(tempusGET(`/maps/name/${map}/fullOverview`));
+  // cache.add(`fetchMap`, data, map);
+  return data;
+  // }
 }
 
 /**
@@ -71,14 +71,14 @@ function fetchMap(map) {
  * @return {object} Response stats object
  */
 function fetchPlayerStats(playerid) {
-  const cacheResult = cache.check(`fetchPlayerStats`, playerid);
-  if (cacheResult) {
-    return cacheResult;
-  } else {
-    const data = request(tempusGET(`/players/id/${playerid}/stats`));
-    // cache.add(`fetchMap`, data, map);
-    return data;
-  }
+  // const cacheResult = cache.check(`fetchPlayerStats`, playerid);
+  // if (cacheResult) {
+  //   return cacheResult;
+  // } else {
+  const data = request(tempusGET(`/players/id/${playerid}/stats`));
+  // cache.add(`fetchMap`, data, map);
+  return data;
+  // }
 }
 
 /**

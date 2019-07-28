@@ -1,6 +1,7 @@
 const twitch = require('./message.js');
 const knownCommands = require('./commands.js');
 const commandPrefix = '!';
+const {instance} = require('../main');
 
 /**
  * Handle for message events.
@@ -32,11 +33,11 @@ function onMessageHandler(target, context, msg, self) {
   if (commandName in knownCommands) {
     const command = knownCommands[commandName];
     if (!params.length && knownCommands.commandList[commandName].usage) {
-      console.log(`Failed ${commandName} command for ${context.username}`);
+      console.log(`[Tempus-Twitch-Bot ${target}] Failed ${commandName} command for ${context.username}`);
       twitch.sendMessage(target, context, `@${context.username} Usage: ${commandPrefix}${commandName} ${knownCommands.commandList[commandName].usage}`);
     } else {
       command(target, context, params);
-      console.log(`Executed ${commandPrefix}${commandName} command for ${context.username}`);
+      console.log(`[Tempus-Twitch-Bot ${target}] Executed ${commandPrefix}${commandName} command for ${context.username}`);
     }
   } else {
     let found = false;
@@ -46,13 +47,13 @@ function onMessageHandler(target, context, msg, self) {
           if (value[1].alias[i] === commandName) {
             found = true;
             knownCommands[value[0]](target, context, params);
-            console.log(`Executed alias ${commandPrefix}${value[1].alias[i]} command for ${context.username}`);
+            console.log(`[Tempus-Twitch-Bot ${target}] Executed alias ${commandPrefix}${value[1].alias[i]} command for ${context.username}`);
           }
         }
       }
     });
     if (!found) {
-      console.log(`Found unknown !${commandName} command for ${context.username}`);
+      console.log(`[Tempus-Twitch-Bot ${target}] Found unknown !${commandName} command for ${context.username}`);
     }
   }
 }
@@ -63,7 +64,7 @@ function onMessageHandler(target, context, msg, self) {
  * @param {string} port
  */
 function onConnectedHandler(address, port) {
-  console.log(`Connected to ${address}:${port}`);
+  console.log(`[Tempus-Twitch-Bot] Connected to ${address}:${port}`);
 }
 
 /**
@@ -71,8 +72,9 @@ function onConnectedHandler(address, port) {
  * @param {string} reason
  */
 function onDisconnectedHandler(reason) {
-  console.log(`Disconnected: ${reason}`);
-  console.log(`Reconnecting...`);
+  console.log(`[Tempus-Twitch-Bot] Disconnected: ${reason}`);
+  instance.connect();
+  console.log(`[Tempus-Twitch-Bot] Reconnecting...`);
 }
 
 module.exports = {

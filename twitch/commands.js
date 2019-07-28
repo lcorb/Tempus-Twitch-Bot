@@ -12,13 +12,13 @@ const serverCall = require(`./commands/servers/call`);
 
 const commandList = {
   stime: {
-    usage: `<map> <#place>`,
+    usage: `<map> <place>`,
   },
   dtime: {
-    usage: `<map> <#place>`,
+    usage: `<map> <place>`,
   },
   time: {
-    usage: `<map> <#place>`,
+    usage: `<map> <place>`,
   },
   mi: {
     usage: `<map>`,
@@ -76,7 +76,7 @@ const commandList = {
     mod: true,
   },
   demo: {
-    usage: `<map> <position> <zone|blank>`,
+    usage: `<map> <position> <zone(c1, b1)|blank for map> <class>`,
     alias: [`stv`, `demos`, `sourcetv`],
   },
   server: {
