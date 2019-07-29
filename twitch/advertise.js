@@ -8,28 +8,29 @@ class AdvertiseManager {
    * Spawn timer for advertising servers
    */
   constructor() {
-    this.servers = [];
-    this.regions = new Set;
+    this.servers = {};
+    this.regions = [];
     setInterval(this.refresh.bind(this), 60000);
-    this.refresh();
+    this.refresh(true);
   }
 
   /**
-  * Formats server status resposne into array.
+  * GET server API.
+  * @param {boolean} region Determines whether to update regions or not. Regions should only be stored once.
   */
-  refresh() {
+  refresh(region = false) {
     api.fetchServerStatus()
         .then((response) => {
-          this.parseServerStatus(response);
+          this.parseServerStatus(response, region);
         });
   }
 
   /**
-  * Formats server status resposne into array.
+  * Extracts information from response and calls store function.
   * @param {string} serverObj Server status response object.
-  * @param {object} params Chat parameters.
+  * @param {boolean} region Determines whether to update regions or not. Regions should only be stored once.
   */
-  parseServerStatus(serverObj) {
+  parseServerStatus(serverObj, region = false) {
     serverObj.forEach((v) => {
       if (v.game_info) {
         this.addServer(
@@ -37,10 +38,13 @@ class AdvertiseManager {
             v.server_info.shortname,
             v.server_info.shortname.replace(/[0-9]/g, ''),
             v.server_info.shortname.replace(/[\D]/g, ''),
-            `${v.server_info.addr}${v.server_info.port}`,
+            `${v.server_info.addr}:${v.server_info.port}`,
             v.game_info.currentMap,
             `${v.game_info.playerCount}/${v.game_info.maxPlayers}`
         );
+        if (region) {
+          this.regions.push(v.server_info.shortname);
+        }
       }
     });
   }
@@ -56,15 +60,7 @@ class AdvertiseManager {
   * @param {string} players
   */
   addServer(name, shortName, region, regionNumber, connect, map, players) {
-    this.regions.forEach((v) => {
-      const key = Object.keys(v)[0];
-      if (key === region) {
-        this.regions.delete(v);
-        this.regions.add(v.add(this.regionNumber));
-      }
-    });
-
-    this.servers.push({[region]: {name: name, shortName: shortName, region: region, regionNumber: regionNumber, connect: connect, map: map, players: players}});
+    this.servers[shortName] = {name: name, region: region, regionNumber: regionNumber, connect: connect, map: map, players: players};
   }
 
   /**
@@ -73,7 +69,7 @@ class AdvertiseManager {
   * @return {string}
   */
   format(shortName) {
-    return `[${this.servers[shortName].name}] ${this.servers[shortName].name} ${this.servers[shortName].map} (${this.servers.players}) - steam://connect/${this.servers[shortName].connect}`;
+    return `[${shortName}] ${this.servers[shortName].name} ${this.servers[shortName].map} (${this.servers[shortName].players}) - steam://connect/${this.servers[shortName].connect} - Go to this link to join.`;
   }
 }
 

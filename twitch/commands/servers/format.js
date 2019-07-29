@@ -1,19 +1,19 @@
-
-
 /**
  * Formats server status into chat response.
- * @param {string} serverObj Server status response object.
  * @param {object} params Chat parameters.
  * @return {string} Chat response string.
  */
-function parseServerStatus(serverObj, params) {
+function parseServerStatus(params) {
+  // Load late because reasons
   const {ad} = require('../../../client/init');
-  ad.parseServerStatus(serverObj);
-  if (!params) {
-    console.log(JSON.stringify(ad.servers, null, 2));
-    const shorts = ad.servers.map((v) => Object.keys(v)).join(``);
-    console.log(shorts);
-    return `Available servers (!join): ${shorts.join(`, `)}`;
+  if (!params.length) {
+    return `Available servers (!join <server>): ${ad.regions.join(`, `)}`;
+  } else {
+    try {
+      return ad.format(params[0].toUpperCase());
+    } catch (e) {
+      return `Couldn't find that server.`;
+    }
   }
 }
 

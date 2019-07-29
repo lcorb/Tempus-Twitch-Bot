@@ -1,5 +1,4 @@
 const twitch = require(`../../message`);
-const api = require(`../../../tempus/api`);
 const parseServerStatus = require(`./format`);
 
 /**
@@ -10,15 +9,8 @@ const parseServerStatus = require(`./format`);
  * @return {void}
  */
 async function serverStatus(target, context, params) {
-  await api.fetchServerStatus()
-      .then(async (response) => {
-        const results = await parseServerStatus(response);
-        twitch.sendMessage(target, context, `@${context.username} ${results}`);
-      })
-      .catch((error) =>{
-        twitch.sendMessage(target, context, `@${context.username} ${error.message}`);
-      });
-  return;
+  const response = await parseServerStatus(params);
+  twitch.sendMessage(target, context, `@${context.username} ${response}`);
 }
 
 module.exports = serverStatus;
