@@ -2,6 +2,7 @@ const twitch = require('./message.js');
 const knownCommands = require('./commands.js');
 const commandPrefix = '!';
 const {instance} = require('../main');
+const config = require('../client/config.json');
 
 /**
  * Handle for message events.
@@ -14,6 +15,7 @@ function onMessageHandler(target, context, msg, self) {
   if (self) {
     return;
   }
+
   /* var userList = request({
     baseUrl: `http://tmi.twitch.tv/group/user/${}/chatters`,
     headers: {
@@ -30,7 +32,7 @@ function onMessageHandler(target, context, msg, self) {
   const parse = msg.slice(1).split(' ');
   const commandName = parse[0];
   const params = parse.splice(1);
-  if (commandName in knownCommands) {
+  if (commandName in knownCommands && !config.disabled[commandName]) {
     const command = knownCommands[commandName];
     if (!params.length && knownCommands.commandList[commandName].usage) {
       console.log(`[Tempus-Twitch-Bot ${target}] Failed ${commandName} command for ${context.username}`);
@@ -44,10 +46,14 @@ function onMessageHandler(target, context, msg, self) {
     Object.entries(knownCommands.commandList).forEach(function(value) {
       if (value[1].hasOwnProperty(`alias`)) {
         for (i = 0; i < value[1].alias.length; i++) {
-          if (value[1].alias[i] === commandName) {
-            found = true;
-            knownCommands[value[0]](target, context, params);
-            console.log(`[Tempus-Twitch-Bot ${target}] Executed alias ${commandPrefix}${value[1].alias[i]} command for ${context.username}`);
+          if (value[1].alias[i] === commandName && value[1].alias[i]) {
+            if (config.disabled[value[0]] !== undefined) {
+              return;
+            } else {
+              found = true;
+              knownCommands[value[0]](target, context, params);
+              console.log(`[Tempus-Twitch-Bot ${target}] Executed alias ${commandPrefix}${value[1].alias[i]} command for ${context.username}`);
+            }
           }
         }
       }

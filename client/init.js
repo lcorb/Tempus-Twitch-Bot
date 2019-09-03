@@ -1,13 +1,13 @@
-const auth = require('./auth.js');
 const tmi = require('tmi.js');
 const twitch = require('../twitch/handles');
 const AdvertiseManager = require('../twitch/advertise');
+const config = require('./config.json');
 
 /**
  * Initialise client and events, connect to twitch.
  */
 async function connect() {
-  const opts = await auth.auth();
+  const opts = config.account;
   client = new tmi.Client(opts);
   client.on('message', twitch.onMessageHandler);
   client.on('connected', twitch.onConnectedHandler);
