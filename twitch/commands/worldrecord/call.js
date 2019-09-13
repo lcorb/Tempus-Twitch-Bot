@@ -12,17 +12,19 @@ const parseWR = require(`./format`);
  */
 async function wr(target, context, params, tf2Class = 'both') {
   await api.tempusSearch(params[0], 'Map').catch((e) => {
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
   })
       .then(async (map) => {
-        api.fetchMap(map)
-            .then(async function(response) {
-              const wrs = await parseWR(response, tf2Class);
-              twitch.sendMessage(target, context, `@${context.username} ${map} | ${wrs}`);
-            })
-            .catch(function(e) {
-              twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
-            });
+        if (map) {
+          api.fetchMap(map)
+          .then(async function(response) {
+            const wrs = await parseWR(response, tf2Class);
+            twitch.sendMessage(target, context, `@${context.username} ${map} | ${wrs}`);
+          })
+          .catch(function(e) {
+            twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
+          });
+        }
       });
   return;
 };

@@ -33,7 +33,8 @@ class AdvertiseManager {
   parseServerStatus(serverObj, region = false) {
     serverObj.forEach((v) => {
       if (v.game_info) {
-        this.addServer(
+        if (v.server_info.shortname !== 'DEV1') {
+          this.addServer(
             v.server_info.name,
             v.server_info.shortname,
             v.server_info.shortname.replace(/[0-9]/g, ''),
@@ -41,9 +42,12 @@ class AdvertiseManager {
             `${v.server_info.addr}:${v.server_info.port}`,
             v.game_info.currentMap,
             `${v.game_info.playerCount}/${v.game_info.maxPlayers}`
-        );
+          );
+        }
         if (region) {
-          this.regions.push(v.server_info.shortname);
+          if (v.server_info.shortname !== 'DEV1') {
+            this.regions.push(v.server_info.shortname);
+          }
         }
       }
     });

@@ -16,14 +16,16 @@ async function mi(target, context, params) {
         return;
       })
       .then(async (map) =>{
-        api.fetchMap(map)
-            .then(async function(response) {
-              const results = await parseMap(response);
-              twitch.sendMessage(target, context, `@${context.username} ${map} ${results}`);
-            })
-            .catch(function(e) {
-              twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
-            });
+        if (map) {
+          api.fetchMap(map)
+          .then(async function(response) {
+            const results = await parseMap(response);
+            twitch.sendMessage(target, context, `@${context.username} ${map} ${results}`);
+          })
+          .catch(function(e) {
+            twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
+          });
+        }
       });
   return;
 };

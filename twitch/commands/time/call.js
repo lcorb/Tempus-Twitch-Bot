@@ -23,6 +23,7 @@ async function runTime(target, context, params, tf2Class = `both`, zone = `map`,
         const mapName = await api.tempusSearch(params[runInfo[0]], 'Map')
             .catch((e) =>{
               twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
+              return;
             });
         const pos = (runInfo[0] === 1 ? parseInt(params[0]) : parseInt(params[1]));
         if (pos < 1) {

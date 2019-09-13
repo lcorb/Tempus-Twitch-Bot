@@ -11,17 +11,19 @@ const parseVids = require(`./format`);
  */
 async function vid(target, context, params) {
   await api.tempusSearch(params[0], 'Map').catch((e) => {
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
   })
       .then(async (mapName) => {
-        api.fetchMap(mapName)
-            .then(async function(response) {
-              vids = await parseVids(response);
-              twitch.sendMessage(target, context, `@${context.username} ${mapName} | ${vids}`);
-            })
-            .catch(function(e) {
-              twitch.sendMessage(target, context, `@${context.username} ${e.error}`);
-            });
+        if (mapName) {
+          api.fetchMap(mapName)
+          .then(async function(response) {
+            vids = await parseVids(response);
+            twitch.sendMessage(target, context, `@${context.username} ${mapName} | ${vids}`);
+          })
+          .catch(function(e) {
+            twitch.sendMessage(target, context, `@${context.username} ${e.error}`);
+          });
+        }
       });
   return;
 };

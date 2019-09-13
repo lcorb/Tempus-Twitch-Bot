@@ -26,19 +26,21 @@ async function demo(target, context, params) {
                   });
               const pos = (runInfo[0] === 1 ? parseInt(params[0]) : parseInt(params[1]));
               // request(api.tempusGET(api.miEnd + `${mapName}${api.zoneEnd}${runInfo[1]}/${runInfo[2]}/records/list`, {limit: 1, start: pos}))
-              api.fetchTime(mapName, runInfo[1], runInfo[2], pos)
-                  .then(async function(response) {
-                    // API does not return error for no results in search.
-                    if (!response.results[tf2Class].length) {
-                      twitch.sendMessage(target, context, `@${context.username} This run doesn't appear to exist.`);
-                    } else {
-                      api.fetchRecord(response.results[tf2Class][0].id)
-                          .then(async (response) => {
-                            const results = await parseDemo(response);
-                            twitch.sendMessage(target, context, `@${context.username} ${results}`);
-                          });
-                    }
-                  });
+              if (mapName) {
+                api.fetchTime(mapName, runInfo[1], runInfo[2], pos)
+                .then(async function(response) {
+                  // API does not return error for no results in search.
+                  if (!response.results[tf2Class].length) {
+                    twitch.sendMessage(target, context, `@${context.username} This run doesn't appear to exist.`);
+                  } else {
+                    api.fetchRecord(response.results[tf2Class][0].id)
+                        .then(async (response) => {
+                          const results = await parseDemo(response);
+                          twitch.sendMessage(target, context, `@${context.username} ${results}`);
+                        });
+                  }
+                });
+              }
             });
       })
       .catch((e) => {

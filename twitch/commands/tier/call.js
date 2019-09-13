@@ -11,17 +11,19 @@ const parseTiers = require(`./format`);
  */
 async function tier(target, context, params) {
   await api.tempusSearch(params[0], 'Map').catch((e) => {
-    twitch.sendMessage(target, context, `@${context.username} ${e}`);
+    twitch.sendMessage(target, context, `@${context.username} ${e.message}`);
   })
       .then(async (map) => {
-        api.fetchMap(map)
-            .then(async function(response) {
-              const tiers = await parseTiers(response);
-              twitch.sendMessage(target, context, `@${context.username} ${map} ${tiers}`);
-            })
-            .catch(function(response) {
-              twitch.sendMessage(target, context, `@${context.username} ${response}`);
-            });
+        if (map) {
+          api.fetchMap(map)
+          .then(async function(response) {
+            const tiers = await parseTiers(response);
+            twitch.sendMessage(target, context, `@${context.username} ${map} ${tiers}`);
+          })
+          .catch(function(response) {
+            twitch.sendMessage(target, context, `@${context.username} ${response}`);
+          });
+        }
       });
   return;
 };
