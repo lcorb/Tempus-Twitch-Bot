@@ -50,9 +50,14 @@ function onMessageHandler(target, context, msg, self) {
             if (config.disabled[value[0]] !== undefined) {
               return;
             } else {
-              found = true;
-              knownCommands[value[0]](target, context, params);
-              console.log(`[Tempus-Twitch-Bot ${target}] Executed alias ${commandPrefix}${value[1].alias[i]} command for ${context.username}`);
+              if (!params.length && value[1].usage) {
+                console.log(`[Tempus-Twitch-Bot ${target}] Failed ${commandName} command for ${context.username}`);
+                twitch.sendMessage(target, context, `@${context.username} Usage: ${commandPrefix}${value[1].alias[i]} ${value[1].usage}`);
+              } else {
+                found = true;
+                knownCommands[value[0]](target, context, params);
+                console.log(`[Tempus-Twitch-Bot ${target}] Executed alias ${commandPrefix}${value[1].alias[i]} command for ${context.username}`);
+              }
             }
           }
         }
